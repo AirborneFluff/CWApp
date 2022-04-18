@@ -1,4 +1,11 @@
-<div *ngFor="let part of parts">
+<h1>Browse Parts</h1>
+<input type="text" class="form-control form-control-dark w-100 mb-2"
+    nz-input placeholder="Search" 
+    [(ngModel)]="searchValue"
+    (ngModelChange)="updateResults()"
+    />
+
+<div *ngFor="let part of filteredParts">
     <ul>
         <li>
             <app-part-card [part]="part"></app-part-card>

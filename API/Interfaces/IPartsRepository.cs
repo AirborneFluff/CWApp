@@ -9,6 +9,7 @@ namespace API.Interfaces
         Task<Part> GetPartById(int id);
         Task<Part> GetPartByPartCode(string partCode);
         Task<PagedList<PartDto>> GetParts(PaginationParams partParams);
+        Task<List<string>> GetAllPartCodes();
         Task<bool> Exists(string partCode);
     }
 }

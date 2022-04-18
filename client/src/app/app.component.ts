@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { AppRoutingModule } from './app-routing.module';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +10,7 @@ import { environment } from 'src/environments/environment';
 })
 export class AppComponent implements OnInit {
   title = 'CW Controls';
+  contentTitle: string;
 
   constructor() {}
 

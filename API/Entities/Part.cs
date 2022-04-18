@@ -13,7 +13,6 @@ namespace API.Entities
         public string Notes { get; set; }
         public float BufferValue { get; set; }
         public string BufferUnit { get; set; }
-
         public ICollection<SupplySource> SupplySources { get; set; }
 
 

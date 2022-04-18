@@ -1,0 +1,49 @@
+[
+    {
+        "partCode": "1002",
+        "description": "1/4W 5% RESISTOR  12R (TruOhm- CR-025 12R)"
+    },
+    {
+        "partCode": "1005",
+        "description": "1/4W 5% RESISTOR  22R"
+    },
+    {
+        "partCode": "1022",
+        "description": "1/4W 5% RESISTOR  560R"
+    },
+    {
+        "partCode": "3025",
+        "description": "ZENER DIODE 500mW 5V1 (FAIRCHILD SEMICONDUCTOR- BZX79-C5V1)"
+    },
+    {
+        "partCode": "3110",
+        "description": "VOLTAGE REGULATOR 78L05 (+5v) (ST- L78L05ACZ)",
+        "bufferValue": 120
+    },
+    {
+        "partCode": "3262",
+        "description": "THYRISTOR  TYN616RG (ST)"
+    },
+    {
+        "partCode": "3266",
+        "description": "VNP20N07(-E)  (ST)",
+        "bufferValue": 550
+    },
+    {
+        "partCode": "3465",
+        "description": "MJ4032 DARLINGTON TRANSISTOR TO-3  (ST PART)"
+    },
+    {
+        "partCode": "5656",
+        "description": "TO-220 HEATSINK SOLDER TAG (AAVID THERMALLOY 5900PB)",
+        "notes": "string",
+        "bufferValue": 0,
+        "bufferUnit": "string"
+    },
+    {
+        "partCode": "1037",
+        "description": "1/4W 5% RESISTOR  10K (TruOhm)",
+        "bufferValue": 2,
+        "bufferUnit": "Pks"
+    }
+]

@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Part } from 'src/app/_models/part';
 import { PartsService } from 'src/app/_services/parts.service';
 import { environment } from 'src/environments/environment';
@@ -10,7 +12,9 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./part-browse.component.css']
 })
 export class PartBrowseComponent implements OnInit {
+  searchValue: "";
   baseUrl = environment.baseUrl;
+  filteredParts: Part[] = [];
   parts: Part[] = [];
 
   constructor(private partService: PartsService) { }
@@ -22,7 +26,20 @@ export class PartBrowseComponent implements OnInit {
   loadParts() {
     this.partService.getParts().subscribe(parts => {
       this.parts = parts;
-      console.log(this.parts);
+      this.updateResults();
     })
+  }
+
+  updateResults() {
+    let partcodeFilter = this.parts.filter(p => {
+      return p.partCode.includes(this.searchValue);
+    });
+    let wordFilter = this.parts.filter(p => {
+      return p.description.toLocaleLowerCase().includes(this.searchValue.toLocaleLowerCase());
+    });
+    this.filteredParts = partcodeFilter;
+    wordFilter.forEach(p => {
+      if (!this.filteredParts.includes(p)) this.filteredParts.push(p);
+    });
   }
 }

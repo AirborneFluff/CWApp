@@ -47,6 +47,11 @@ namespace API.Data
             return await PagedList<PartDto>.CreateAsync(_query, partParams.PageNumber, partParams.PageSize);
         }
 
+        public async Task<List<string>> GetAllPartCodes()
+        {
+            return await _context.Parts.Select(p => p.PartCode).ToListAsync();
+        }
+
         public void RemovePart(Part part)
         {
             _context.Parts.Remove(part);

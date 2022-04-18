@@ -1,5 +1,3 @@
-using API.Helpers;
-
 namespace API.Controllers
 {
     public class SuppliersController : BaseApiController
@@ -29,7 +27,7 @@ namespace API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<ActionResult> CreateSupplier([FromBody] Supplier supplier)
+        public async Task<ActionResult> CreateSupplier([FromBody] NewSupplierDto supplier)
         {
             if (await _unitOfWork.SuppliersRepository.Exists(supplier.Name)) return BadRequest("That supplier already exists");
 

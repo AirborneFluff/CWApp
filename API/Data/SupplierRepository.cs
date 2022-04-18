@@ -10,9 +10,13 @@ namespace API.Data.Migrations
             this._context = context;
         }
 
-        public void AddSupplier(Supplier supplier)
+        public void AddSupplier(NewSupplierDto supplier)
         {
-            _context.Add(supplier);
+            var newSupplier = new Supplier(supplier.Name)
+            {
+                Website = supplier.Website
+            };
+            _context.Suppliers.Add(newSupplier);
         }
 
         public async Task<bool> Exists(string supplierName)
@@ -63,5 +67,17 @@ namespace API.Data.Migrations
             RemoveSupplier(supplier);
         }
 
+        public async Task<List<string>> GetAllSupplierNames(bool normalizedName)
+        {
+            if (normalizedName)
+                return await _context.Suppliers.Select(s => s.NormalizedName).ToListAsync();
+
+            return await _context.Suppliers.Select(s => s.Name).ToListAsync();
+        }
+
+        public async Task<List<Supplier>> GetAllSuppliers()
+        {
+            return await _context.Suppliers.ToListAsync();
+        }
     }
 }
