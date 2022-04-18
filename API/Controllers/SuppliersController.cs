@@ -40,19 +40,10 @@ namespace API.Controllers
             return BadRequest("Problem creating supplier");
         }
         
-        [HttpDelete("{supplierName}")]
-        public async Task<ActionResult> DeleteSupplier(string supplierName)
+        [HttpDelete("delete")]
+        public async Task<ActionResult> DeleteSupplier([FromQuery]string supplierName)
         {
             await _unitOfWork.SuppliersRepository.RemoveSupplierByName(supplierName);
-            if (await _unitOfWork.Complete()) return Ok();
-
-            return BadRequest("Issue deleting supplier");
-        }
-
-        [HttpDelete("id/{id}")]
-        public async Task<ActionResult> DeleteSupplier(int id)
-        {
-            await _unitOfWork.SuppliersRepository.RemoveSupplierById(id);
             if (await _unitOfWork.Complete()) return Ok();
 
             return BadRequest("Issue deleting supplier");

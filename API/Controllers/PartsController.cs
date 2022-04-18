@@ -147,8 +147,8 @@ namespace API.Controllers
             return BadRequest("Issue removing price break");
         }
 
-        [HttpDelete("{partcode}")]
-        public async Task<ActionResult> DeletePart(string partCode)
+        [HttpDelete("delete")]
+        public async Task<ActionResult> DeletePart([FromQuery]string partCode)
         {
             await _unitOfWork.PartsRepository.RemovePartByPartCode(partCode);
             if (await _unitOfWork.Complete()) return Ok();
