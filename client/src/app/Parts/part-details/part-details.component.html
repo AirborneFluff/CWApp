@@ -1,3 +1,27 @@
-<div *ngIf="part">
-    <p>{{part.partCode}}</p>
+<div class="d-flex gap-2 w-100">
+    <div class="d-flex mx-5">
+        <h3>{{part.partCode}} - {{part.description}}</h3>
+        <h3 class="ml-1"></h3>
+    </div>
+    
+
+    <div *ngIf="part.buffer !== '0 '" class="d-flex mt-2">
+        <h5>Buffer:</h5>
+        <h6 class="ml-2 mt-1 opacity-75">{{part.buffer}}</h6>
+    </div>
+</div>
+
+<hr>
+
+<div class="d-flex gap-2 w-100">
+    <div class="d-flex mx-5">
+        <h3>{{part.partCode}} - {{part.description}}</h3>
+        <h3 class="ml-1"></h3>
+    </div>
+    
+
+    <div *ngIf="part.buffer !== '0 '" class="d-flex mt-2">
+        <h5>Buffer:</h5>
+        <h6 class="ml-2 mt-1 opacity-75">{{part.buffer}}</h6>
+    </div>
 </div>

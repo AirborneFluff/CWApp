@@ -8,7 +8,9 @@ namespace API.Interfaces
         Task UpdatePart(Part part);
         Task<Part> GetPartById(int id);
         Task<Part> GetPartByPartCode(string partCode);
-        Task<PagedList<PartDto>> GetParts(PaginationParams partParams);
+        Task<PagedList<PartDto>> GetParts(PaginationParams partParams, Func<PartDto, bool> predicate);
+        Task<IEnumerable<PartDto>> GetAllParts();
+        Task<List<Part>> GetAllPartsAsList();
         Task<List<string>> GetAllPartCodes();
         Task<bool> Exists(string partCode);
     }

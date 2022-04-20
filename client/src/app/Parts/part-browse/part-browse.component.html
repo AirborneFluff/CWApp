@@ -1,14 +1,28 @@
 <h1>Browse Parts</h1>
-<input type="text" class="form-control form-control-dark w-100 mb-2"
+<div class="form-inline pb-2">
+    <input type="text" class="form-control mr-sm-4"
     nz-input placeholder="Search" 
-    [(ngModel)]="searchValue"
-    (ngModelChange)="updateResults()"
-    />
+    [(ngModel)]="partParams.searchValue">
+    
+    <button type="button" (click)="loadParts()" class="btn btn-primary my-2 my-sm-0">Search</button>
+</div>
 
-<div *ngFor="let part of filteredParts">
+
+<div>
     <ul>
-        <li>
+        <li *ngFor="let part of parts">
             <app-part-card [part]="part"></app-part-card>
         </li>
     </ul>
+</div>
+
+<div *ngIf="pagination" class="d-flex justify-content-center">
+    <pagination
+        [boundaryLinks]="true"
+        [totalItems]="pagination.totalItems"
+        [itemsPerPage]="pagination.itemsPerPage"
+        [(ngModel)]="pagination.currentPage"
+        (pageChanged)="pageChanged($event)"
+        previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+    </pagination>
 </div>

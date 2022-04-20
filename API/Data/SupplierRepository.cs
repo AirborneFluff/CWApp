@@ -35,10 +35,10 @@ namespace API.Data.Migrations
             return await _context.Suppliers.FirstOrDefaultAsync(s => s.NormalizedName == name.ToUpper());
         }
 
-        public async Task<PagedList<Supplier>> GetSuppliers(PaginationParams partParams)
+        public async Task<PagedList<Supplier>> GetSuppliers(PaginationParams partParams, Func<Supplier, bool> predicate)
         {
-            var query = _context.Suppliers.OrderBy(s => s.Name);
-            return await PagedList<Supplier>.CreateAsync(query, partParams.PageNumber, partParams.PageSize);
+            var query = _context.Suppliers.OrderBy(s => s.Name).AsQueryable();;
+            return await PagedList<Supplier>.CreateAsync(query, predicate, partParams.PageNumber, partParams.PageSize);
         }
 
         public void RemoveSupplier(Supplier supplier)

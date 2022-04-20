@@ -10,6 +10,7 @@ import { HomeComponent } from './home/home.component';
 import { PartDetailsComponent } from './parts/part-details/part-details.component';
 import { PartCardComponent } from './parts/part-card/part-card.component';
 import { PartBrowseComponent } from './parts/part-browse/part-browse.component';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 
 @NgModule({
   declarations: [
@@ -17,14 +18,15 @@ import { PartBrowseComponent } from './parts/part-browse/part-browse.component';
     HomeComponent,
     PartDetailsComponent,
     PartCardComponent,
-    PartBrowseComponent
+    PartBrowseComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    FormsModule
+    FormsModule,
+    PaginationModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

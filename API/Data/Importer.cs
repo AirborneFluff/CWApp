@@ -5,10 +5,11 @@ namespace API.Data
 {
     public class Importer
     {
-        static string _noneParsableLines;
+
         static List<string> _existingPartCodes;
-        static List<Part> _parts;
-        static List<string> _errorLog;
+        static List<string> _existingSupplierNames;
+
+        static List<Supplier> _cachedSuppliers;
 
         enum Fields
         {
@@ -42,33 +43,24 @@ namespace API.Data
             SearchingForPrice,
         }
 
-        public static async void ConvertLine(string RowData, List<string> ErrorLog, IUnitOfWork unitOfWork)
+        public static void GetPartFromLine(string RowData, IUnitOfWork unitOfWork)
         {
             NewPartDto newPart = new NewPartDto();
             RowData = Regex.Replace(RowData, @"(?<=\,)""|""(?=\,)|^""|""$", "");
             string[] fieldData = RowData.Split(',');
-            if (fieldData.Length != 22)
-            {
-                ErrorLog.Add($"\nCannot convert \"{RowData}\"\nData doesn't contain the right number of collumns: Line has -> {fieldData.Length} collums");
-                return;
-            }
+            if (fieldData.Length != 22) return;
 
-            #region PartCode
+            // Get partcode
             string _partCode = fieldData[(int)Fields.PartCode];
-            if (!PartCodeExists(_partCode))
-                newPart.PartCode = _partCode.ToString();
-            else
-            {
-                ErrorLog.Add($"\nERROR! Cannot convert {RowData}\nCannot parse 'PartCode'");
-                return;
-            }
-            #endregion
+            if (PartCodeExists(_partCode)) return;
 
-            #region Description
+            _existingPartCodes.Add(_partCode);
+            newPart.PartCode = _partCode;
+
+            // Get description
             newPart.Description = fieldData[(int)Fields.Description];
-            #endregion
 
-            #region Buffer
+            // Parse buffer
             float _bufferValue;
             float _bufferMagnitude = 1;
             string _bufferValText;
@@ -90,13 +82,119 @@ namespace API.Data
             }
             else
             {
-                if (fieldData[(int)Fields.Buffer] != "")
-                    ErrorLog.Add($"\nBuffer maybe missing from \"{newPart.PartCode}\"\nUnable to parse buffer value");
+                //if (fieldData[(int)Fields.Buffer] != "")
+                    //ErrorLog.Add($"\nBuffer maybe missing from \"{newPart.PartCode}\"\nUnable to parse buffer value");
 
                 newPart.BufferValue = 0;
                 newPart.BufferUnit = _bufferSuffix;
             }
-            #endregion
+
+            unitOfWork.PartsRepository.AddPart(newPart);
+        }
+
+        public static void GetSuppliersFromLine(string RowData, IUnitOfWork unitOfWork)
+        {
+            NewSupplierDto newSupplier = new NewSupplierDto();
+            RowData = Regex.Replace(RowData, @"(?<=\,)""|""(?=\,)|^""|""$", "");
+            string[] fieldData = RowData.Split(',');
+            if (fieldData.Length != 22) return;
+
+            // Parsing supplier names
+            string _name1 = fieldData[(int)Fields.Supplier1];
+            string _name2 = fieldData[(int)Fields.Supplier2];
+            string _name3 = fieldData[(int)Fields.Supplier3];
+
+            if (!string.IsNullOrEmpty(_name1) && !SupplierExists(_name1))
+            {
+                unitOfWork.SuppliersRepository.AddSupplier(new NewSupplierDto { Name = _name1 });
+                _existingSupplierNames.Add(_name1.ToUpper());
+            }
+            if (!string.IsNullOrEmpty(_name2) && !SupplierExists(_name2))
+            {
+                unitOfWork.SuppliersRepository.AddSupplier(new NewSupplierDto { Name = _name2 });
+                _existingSupplierNames.Add(_name2.ToUpper());
+            }
+            if (!string.IsNullOrEmpty(_name3) && !SupplierExists(_name3))
+            {
+                unitOfWork.SuppliersRepository.AddSupplier(new NewSupplierDto { Name = _name3 });
+                _existingSupplierNames.Add(_name3.ToUpper());
+            }
+        }
+
+        public static async void GetSupplySourcesFromLine(string RowData, IUnitOfWork unitOfWork)
+        {
+            RowData = Regex.Replace(RowData, @"(?<=\,)""|""(?=\,)|^""|""$", "");
+            string[] fieldData = RowData.Split(',');
+            if (fieldData.Length != 22) return;
+
+            // Get Part
+            Part part = await unitOfWork.PartsRepository.GetPartByPartCode(fieldData[(int)Fields.PartCode]);
+
+            // Get Suppliers
+            Supplier supplier1 = _cachedSuppliers.FirstOrDefault(s => s.Name == fieldData[(int)Fields.Supplier1]);
+            Supplier supplier2 = _cachedSuppliers.FirstOrDefault(s => s.Name == fieldData[(int)Fields.Supplier2]);
+            Supplier supplier3 = _cachedSuppliers.FirstOrDefault(s => s.Name == fieldData[(int)Fields.Supplier3]);
+
+            SupplySource source1;
+            SupplySource source2;
+            SupplySource source3;
+
+            if (supplier1 != null)
+            {
+                bool _RoHS = false;
+                bool.TryParse(fieldData[(int)Fields.RoHS1], out _RoHS);
+
+                source1 = new SupplySource();
+                source1.Supplier = supplier1;
+                source1.SupplierSKU = fieldData[(int)Fields.Code1];
+                source1.Notes = "--Import--\n" + fieldData[(int)Fields.Price1];
+                source1.RoHS = _RoHS;
+
+                part.SupplySources.Add(source1);
+            }
+            if (supplier2 != null)
+            {
+                bool _RoHS = false;
+                bool.TryParse(fieldData[(int)Fields.RoHS2], out _RoHS);
+
+                source2 = new SupplySource();
+                source2.Supplier = supplier1;
+                source2.SupplierSKU = fieldData[(int)Fields.Code2];
+                source2.Notes = "--Import--\n" + fieldData[(int)Fields.Price2];
+                source2.RoHS = _RoHS;
+
+                part.SupplySources.Add(source2);
+            }
+            if (supplier3 != null)
+            {
+                bool _RoHS = false;
+                bool.TryParse(fieldData[(int)Fields.RoHS3], out _RoHS);
+
+                source3 = new SupplySource();
+                source3.Supplier = supplier1;
+                source3.SupplierSKU = fieldData[(int)Fields.Code3];
+                source3.Notes = "--Import--\n" + fieldData[(int)Fields.Price3];
+                source3.RoHS = _RoHS;
+
+                part.SupplySources.Add(source3);
+            }
+            await unitOfWork.Complete();
+        }
+
+        /*
+        public static async void ConvertLine(string RowData, List<string> ErrorLog, IUnitOfWork unitOfWork)
+        {
+            RowData = Regex.Replace(RowData, @"(?<=\,)""|""(?=\,)|^""|""$", "");
+            string[] fieldData = RowData.Split(',');
+            if (fieldData.Length != 22)
+            {
+                ErrorLog.Add($"\nCannot convert \"{RowData}\"\nData doesn't contain the right number of collumns: Line has -> {fieldData.Length} collums");
+                return;
+            }
+
+            
+
+            
 
             unitOfWork.PartsRepository.AddPart(newPart);
             await unitOfWork.Complete();
@@ -184,33 +282,46 @@ namespace API.Data
             }
             newPart.SupplySources = _supplySource;
             #endregion
-            */
-            
         }
+        */
         static bool PartCodeExists(string partCode)
         {
             if (_existingPartCodes.Contains(partCode)) return true;
-            else return false;
+            return false;
+        }
+        static bool SupplierExists(string supplierName)
+        {
+            if (_existingSupplierNames.Contains(supplierName.ToUpper())) return true;
+            return false;
         }
 
         public async static Task Begin(IUnitOfWork unitOfWork)
         {
-            _existingPartCodes = await unitOfWork.PartsRepository.GetAllPartCodes();
-
-            if (_existingPartCodes == null) _existingPartCodes = new List<string>();
-
-            _errorLog = new List<string>();
+            _existingPartCodes = new List<string>();
+            _existingSupplierNames = new List<string>();
+            _cachedSuppliers = new List<Supplier>();
             
             string text = await File.ReadAllTextAsync("Data/table.txt");
             string[] lines = text.Split('\n');
             int total = lines.Length;
 
             foreach (var line in lines)
-            {
-                ConvertLine(line, _errorLog, unitOfWork);
-            }
-
+                GetPartFromLine(line, unitOfWork);
             await unitOfWork.Complete();
+
+            foreach (var line in lines)
+                GetSuppliersFromLine(line, unitOfWork);
+            await unitOfWork.Complete();
+            _cachedSuppliers = await unitOfWork.SuppliersRepository.GetAllSuppliers();
+
+            foreach (var line in lines)
+                GetSupplySourcesFromLine(line, unitOfWork);
+
+            /*
+                        foreach (var line in lines)
+                            GetPricesFromLine(line, unitOfWork);
+                        await unitOfWork.Complete();
+                        */
         }
     }
 }

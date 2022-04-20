@@ -37,7 +37,6 @@ try
     var context = service.GetRequiredService<DataContext>();
     var unitOfWork = service.GetRequiredService<IUnitOfWork>();
     await context.Database.MigrateAsync();
-    await Importer.Begin(unitOfWork);
 }
 catch (Exception ex)
 {

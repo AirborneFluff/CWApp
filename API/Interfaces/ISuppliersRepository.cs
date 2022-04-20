@@ -11,7 +11,7 @@ namespace API.Interfaces
         Task<bool> Exists(string supplierName);
         Task<Supplier> GetSupplierByName(string name);
         Task<Supplier> GetSupplierById(int id);
-        Task<PagedList<Supplier>> GetSuppliers(PaginationParams partParams);
+        Task<PagedList<Supplier>> GetSuppliers(PaginationParams partParams, Func<Supplier, bool> predicate);
         Task<List<Supplier>> GetAllSuppliers();
         Task<List<string>> GetAllSupplierNames(bool NormalizedName);
     }

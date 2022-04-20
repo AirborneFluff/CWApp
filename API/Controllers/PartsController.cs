@@ -13,13 +13,26 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PartDto>>> GetParts([FromQuery]PaginationParams partParams)
+        public async Task<ActionResult<IEnumerable<PartDto>>> GetParts([FromQuery] PaginationParams partParams, [FromQuery] string searchValue)
         {
-            var parts = await _unitOfWork.PartsRepository.GetParts(partParams);
+            Func<PartDto, bool> predicate;
+            if (searchValue == null) predicate = x => true;
+            else predicate = x => (x.PartCode.Contains(searchValue)
+                                || (x.Description == null ? false : x.Description.ToUpper().Contains(searchValue.ToUpper())));
+
+            var parts = await _unitOfWork.PartsRepository.GetParts(partParams, predicate);
             Response.AddPaginationHeader(parts.CurrentPage, parts.PageSize, parts.TotalCount, parts.TotalPages);
 
             return Ok(parts);
         }
+
+        [HttpGet("all")]
+        public async Task<ActionResult<IEnumerable<PartDto>>> GetAllParts()
+        {
+            var parts = await _unitOfWork.PartsRepository.GetAllParts();
+            return Ok(parts);
+        }
+        
 
         [HttpGet("{partcode}")]
         public async Task<ActionResult<Part>> GetPart(string partCode)
@@ -177,16 +190,12 @@ namespace API.Controllers
             return BadRequest("Nothing changes");
         }
 
-        
-        [HttpGet("testing")]
-        public async Task<ActionResult<Part>> Testing()
-        {
-            var part = await _unitOfWork.PartsRepository.GetPartById(22);
-            _unitOfWork.PartsRepository.RemovePart(part);
-            if (await _unitOfWork.Complete()) return Ok();
-
-            return BadRequest("No changes made");
-        }
         */
+        [HttpGet("import-data")]
+        public async Task<ActionResult<Part>> Import()
+        {
+            await Importer.Begin(_unitOfWork);
+            return Ok();
+        }
     }
 }

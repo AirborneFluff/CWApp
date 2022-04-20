@@ -39,12 +39,12 @@ namespace API.Data
                 .FirstOrDefaultAsync(p => p.PartCode == partCode);
         }
 
-        public async Task<PagedList<PartDto>> GetParts(PaginationParams partParams)
+        public async Task<PagedList<PartDto>> GetParts(PaginationParams partParams, Func<PartDto, bool> predicate)
         {
             var query = _context.Parts.OrderBy(p => p.PartCode).AsQueryable();
             var _query = query.ProjectTo<PartDto>(_mapper.ConfigurationProvider).AsNoTracking();
 
-            return await PagedList<PartDto>.CreateAsync(_query, partParams.PageNumber, partParams.PageSize);
+            return await PagedList<PartDto>.CreateAsync(_query, predicate, partParams.PageNumber, partParams.PageSize);
         }
 
         public async Task<List<string>> GetAllPartCodes()
@@ -67,6 +67,18 @@ namespace API.Data
         public Task UpdatePart(Part part)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<PartDto>> GetAllParts()
+        {
+            return await _context.Parts
+                .ProjectTo<PartDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+        }
+
+        public async Task<List<Part>> GetAllPartsAsList()
+        {
+            return await _context.Parts.ToListAsync();
         }
     }
 }

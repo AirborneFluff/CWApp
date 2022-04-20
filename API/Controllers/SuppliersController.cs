@@ -9,9 +9,14 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Supplier>>> GetSuppliers([FromQuery]PaginationParams supplierParams)
+        public async Task<ActionResult<IEnumerable<Supplier>>> GetSuppliers([FromQuery]PaginationParams supplierParams, [FromQuery]string searchValue)
         {
-            var suppliers = await _unitOfWork.SuppliersRepository.GetSuppliers(supplierParams);
+            Func<Supplier, bool> predicate;
+            if (searchValue == null) predicate = x => true;
+            else predicate = x => (x.NormalizedName.Contains(searchValue.ToUpper())
+                                || (x.Website == null ? false : x.Website.ToUpper().Contains(searchValue.ToUpper())));
+
+            var suppliers = await _unitOfWork.SuppliersRepository.GetSuppliers(supplierParams, predicate);
             Response.AddPaginationHeader(suppliers.CurrentPage, suppliers.PageSize, suppliers.TotalCount, suppliers.TotalPages);
 
             return Ok(suppliers);
