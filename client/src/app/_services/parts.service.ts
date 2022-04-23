@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Pagination } from '../_models/pagination';
-import { Part } from '../_models/part';
+import { Part, SourcePrice, SupplySource } from '../_models/part';
 import { PartParams } from '../_models/partParams';
 import { getPaginatedResult, getPaginationHeaders } from './pagination-helper.service';
 
@@ -20,8 +20,8 @@ export class PartsService {
     return this.http.get<Part[]>(this.baseUrl + "parts");
   }
 
-  getPart(partId: string) {
-    return this.http.get<Part>(this.baseUrl + "parts/" + partId);
+  getPart(partCode: string) {
+    return this.http.get<Part>(this.baseUrl + "parts/" + partCode);
   }
 
   getPaginatedParts(partParams: PartParams) {
@@ -34,4 +34,43 @@ export class PartsService {
       return result;
     }))
   }
+
+  updatePrices(partCode: String, sourceId: Number, prices: SourcePrice[]) {
+    var arr = new Array;
+    prices.forEach(elem => {
+      var price = {
+        unitPrice: elem.unitPrice,
+        quantity: elem.quantity
+      };
+      arr.push(price);
+    });
+    console.log(arr);
+    
+    return this.http.patch(this.baseUrl + `parts/${partCode}/${sourceId}/update-prices`, arr);
+  }
+
+  updateSupplySource(partCode: String, source: SupplySource) {
+    var body = {
+      supplierName: source.supplier.name,
+      supplierSKU: source.supplierSKU,
+      manufacturerSKU: source.manufacturerSKU,
+      packSize: source.packSize,
+      minimumOrderQuantity: source.minimumOrderQuantity,
+      notes: source.notes,
+      roHS: source.roHS
+    }
+    
+    return this.http.patch(this.baseUrl + `parts/${partCode}/${source.id}`, body);
+  }
+
+  addSupplySource(partCode: string, supplierName: string) {
+    var body = {
+      supplierName: supplierName
+    }
+    return this.http.patch(this.baseUrl + `parts/${partCode}/add-source?supplierName=${supplierName}`, {});
+  }
+
+  removeSupplySource(partCode: string, soureceId: number) {
+    return this.http.patch(this.baseUrl + `parts/${partCode}/${soureceId}/remove-source`, {});
+  } 
 }

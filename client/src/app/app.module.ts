@@ -11,6 +11,11 @@ import { PartDetailsComponent } from './parts/part-details/part-details.componen
 import { PartCardComponent } from './parts/part-card/part-card.component';
 import { PartBrowseComponent } from './parts/part-browse/part-browse.component';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { SupplySourceComponent } from './Parts/supply-source/supply-source.component';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { NewSourceModalComponent } from './modals/new-source-modal/new-source-modal.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +24,8 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
     PartDetailsComponent,
     PartCardComponent,
     PartBrowseComponent,
+    SupplySourceComponent,
+    NewSourceModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -26,7 +33,10 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule,
-    PaginationModule.forRoot()
+    PaginationModule.forRoot(),
+    BsDropdownModule.forRoot(),
+    TypeaheadModule.forRoot(),
+    ModalModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -22,6 +22,15 @@ namespace API.Controllers
             return Ok(suppliers);
         }
 
+        [HttpGet("names")]
+        public async Task<ActionResult<IEnumerable<String>>> GetSupplierNames()
+        {
+            var names = await _unitOfWork.SuppliersRepository.GetAllSupplierNames();
+            if (names == null) NotFound("No suppliers found");
+
+            return Ok(names);
+        }
+
         [HttpGet("{supplierName}")]
         public async Task<ActionResult<Supplier>> GetSupplier(string supplierName)
         {

@@ -67,11 +67,8 @@ namespace API.Data.Migrations
             RemoveSupplier(supplier);
         }
 
-        public async Task<List<string>> GetAllSupplierNames(bool normalizedName)
+        public async Task<List<string>> GetAllSupplierNames()
         {
-            if (normalizedName)
-                return await _context.Suppliers.Select(s => s.NormalizedName).ToListAsync();
-
             return await _context.Suppliers.Select(s => s.Name).ToListAsync();
         }
 

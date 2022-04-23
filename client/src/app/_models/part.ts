@@ -1,28 +1,31 @@
 import { Supplier } from "./supplier";
 
 export interface Part {
-    partId: number,
+    id: number,
     partCode: string,
     description: string,
     notes: string,
+    bufferValue: number,
+    bufferUnit: string;
     buffer: string,
-    sources: Source[]
+    supplySources: SupplySource[]
 }
 
-interface Source {
-    sourceId: number,
+export interface SupplySource {
+    id: number,
+    partId: number,
     supplier: Supplier,
     supplierSKU: string,
     manufacturerSKU: string,
     packSize: number,
     minimumOrderQuantity: number,
     notes: string,
-    rohs: boolean,
-    prices: Price[]
+    roHS: boolean,
+    prices: SourcePrice[]
 }
 
-interface Price {
-    priceId: number,
+export interface SourcePrice {
     unitPrice: number,
-    quantity: number
+    quantity: number,
+    priceString: string
 }

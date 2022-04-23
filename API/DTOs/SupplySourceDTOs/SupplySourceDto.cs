@@ -6,7 +6,6 @@ namespace API.DTOs.SupplySourceDTOs
     {
         [Required]
         public string SupplierName { get; set; }
-        [Required]
         public string SupplierSKU { get; set; }
         public string ManufacturerSKU { get; set; }
         public float PackSize { get; set; } = 1;

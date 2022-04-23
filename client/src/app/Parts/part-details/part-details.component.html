@@ -1,27 +1,30 @@
-<div class="d-flex gap-2 w-100">
-    <div class="d-flex mx-5">
-        <h3>{{part.partCode}} - {{part.description}}</h3>
-        <h3 class="ml-1"></h3>
+
+<div *ngIf="loaded">
+    <div class="d-flex gap-2 w-100">
+        <div class="d-flex mx-5">
+            <h3>{{part.partCode}} - {{part.description}}</h3>
+            <h3 class="ml-1"></h3>
+        </div>
+
+        <div *ngIf="part.buffer !== '0 '" class="d-flex mt-2">
+            <h5>Buffer:</h5>
+            <h6 class="ml-2 mt-1 opacity-75">{{part.buffer}}</h6>
+        </div>
+    </div>
+
+    <hr>
+
+    <div *ngFor="let source of part.supplySources" class="d-flex gap-2 w-100 mb-5">
+        <app-supply-source [source]="source" [partCode]="part.partCode" [supplierNames]="supplierNames" (removeSource)="removeSupplySource($event)"></app-supply-source>
+        <hr>
     </div>
     
-
-    <div *ngIf="part.buffer !== '0 '" class="d-flex mt-2">
-        <h5>Buffer:</h5>
-        <h6 class="ml-2 mt-1 opacity-75">{{part.buffer}}</h6>
-    </div>
-</div>
-
-<hr>
-
-<div class="d-flex gap-2 w-100">
-    <div class="d-flex mx-5">
-        <h3>{{part.partCode}} - {{part.description}}</h3>
-        <h3 class="ml-1"></h3>
-    </div>
     
+    <hr>
 
-    <div *ngIf="part.buffer !== '0 '" class="d-flex mt-2">
-        <h5>Buffer:</h5>
-        <h6 class="ml-2 mt-1 opacity-75">{{part.buffer}}</h6>
+    <div class="d-flex d-flex justify-content-center">
+        <button class="btn" (click)="addSupplySource()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </button>
     </div>
 </div>

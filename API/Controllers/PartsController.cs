@@ -56,23 +56,17 @@ namespace API.Controllers
         }
 
         [HttpPatch("{partCode}/add-source")]
-        public async Task<ActionResult> AddSupplySource (string partCode, [FromBody] SupplySourceDto sourceDto)
+        public async Task<ActionResult> AddSupplySource (string partCode, [FromQuery] string supplierName)
         {
             var part = await _unitOfWork.PartsRepository.GetPartByPartCode(partCode);
             if (part == null) return NotFound("Couldn't find a part with that partcode");
 
-            var supplier = await _unitOfWork.SuppliersRepository.GetSupplierByName(sourceDto.SupplierName);
+            var supplier = await _unitOfWork.SuppliersRepository.GetSupplierByName(supplierName);
             if (supplier == null) return NotFound("Couldn't find a supplier with that name. Create one first");
 
             var supplySource = new SupplySource
             {
-                Supplier = supplier,
-                SupplierSKU = sourceDto.SupplierSKU,
-                ManufacturerSKU = sourceDto.ManufacturerSKU,
-                PackSize = sourceDto.PackSize,
-                MinimumOrderQuantity = sourceDto.MinimumOrderQuantity,
-                Notes = sourceDto.Notes,
-                RoHS = sourceDto.RoHS
+                Supplier = supplier
             };
 
             part.SupplySources.Add(supplySource);
@@ -82,48 +76,58 @@ namespace API.Controllers
             return BadRequest("Issue adding supply source");
         }
 
-        [HttpPatch("{partCode}/remove-source")]
-        public async Task<ActionResult> RemoveSupplySource (string partCode,
-            [FromQuery]string supplierName,
-            [FromQuery]string supplierSKU,
-            [FromQuery]int? sourceId)
+        [HttpPatch("{partCode}/{sourceId}")]
+        public async Task<ActionResult> UpdateSupplySource (string partCode, string sourceId, [FromBody] UpdateSupplySourceDto sourceDto)
         {
-            var part = await _unitOfWork.PartsRepository.GetPartByPartCode(partCode);
-            if (part == null) return NotFound("Couldn't find a part with that partcode");
+            var result = await GetPartAndSource(partCode, sourceId);
+            if (result.Value == null) return result.Result;
 
-            SupplySource source;
+            var part = result.Value.Item1;
+            var supplySource = result.Value.Item2;
 
-            if (sourceId == null)
-            {
-                source = part.SupplySources
-                    .FirstOrDefault(s => s.Supplier.Name == supplierName && s.SupplierSKU == supplierSKU);
-                if (source == null) return NotFound("Couldn't find a supply source with thoughs values");
-            } else
-            {
-                source = part.SupplySources
-                    .FirstOrDefault(s => s.Id == sourceId);
-                if (source == null) return NotFound("Couldn't find a supply source with that id");
-            }
+            var newSupplier = await _unitOfWork.SuppliersRepository.GetSupplierByName(sourceDto.SupplierName);
+            if (newSupplier == null) return NotFound("Couldn't find a supplier with that name");
 
-            _unitOfWork.SupplySourceRepository.RemoveSupplySource(source);
+            supplySource.Supplier = newSupplier;
+            supplySource.SupplierSKU = sourceDto.SupplierSKU;
+            supplySource.ManufacturerSKU = sourceDto.ManufacturerSKU;
+            supplySource.PackSize = sourceDto.PackSize;
+            supplySource.MinimumOrderQuantity = sourceDto.MinimumOrderQuantity;
+            supplySource.Notes = sourceDto.Notes;
+            supplySource.RoHS = sourceDto.RoHS;
+
+            if (await _unitOfWork.Complete()) return Ok();
+
+            return BadRequest("Issue updating supply source, did you make any changes?");
+        }
+
+        [HttpPatch("{partCode}/{sourceId}/remove-source")]
+        public async Task<ActionResult> RemoveSupplySource (string partCode, string sourceId)
+        {
+            
+            var result = await GetPartAndSource(partCode, sourceId);
+            if (result.Value == null) return result.Result;
+
+            var part = result.Value.Item1;
+            var supplySource = result.Value.Item2;
+
+            _unitOfWork.SupplySourceRepository.RemoveSupplySource(supplySource);
 
             if (await _unitOfWork.Complete()) return Ok();
 
             return BadRequest("Issue removing supply source");
         }
         
-        [HttpPatch("{partCode}/add-price")]
-        public async Task<ActionResult> AddSourcePrice (string partCode, [FromBody] SourcePriceDto priceDto)
+        [HttpPatch("{partCode}/{sourceId}/add-price")]
+        public async Task<ActionResult> AddSourcePrice (string partCode, string sourceId, [FromBody] SourcePrice priceDto)
         {
-            var part = await _unitOfWork.PartsRepository.GetPartByPartCode(partCode);
-            if (part == null) return NotFound("Couldn't find a part with that partcode");
+            var result = await GetPartAndSource(partCode, sourceId);
+            if (result.Value == null) return result.Result;
 
-            var supplySource = part.SupplySources
-                .FirstOrDefault(s => s.Supplier.NormalizedName == priceDto.SupplierName.ToUpper()
-                                && s.SupplierSKU == priceDto.SupplierSKU);
-            if (supplySource == null) return NotFound("Couldn't find a supply source with those parameters");
+            var part = result.Value.Item1;
+            var supplySource = result.Value.Item2;
 
-            if (priceDto.UnitPrice <= 0) return BadRequest("You must provide a valid unit price");
+            if (priceDto.UnitPrice < 0) return BadRequest("You must provide a valid unit price");
             if (priceDto.Quantity <= 0) return BadRequest("You must provide a valid quantity");
 
             var price = new SourcePrice
@@ -142,16 +146,59 @@ namespace API.Controllers
             return BadRequest("Issue adding supply source");
         }
 
-        [HttpPatch("{partCode}/remove-price")]
-        public async Task<ActionResult> RemoveSourcePrice (string partCode, [FromQuery]int? priceId)
+        [HttpPatch("{partCode}/{sourceId}/update-prices")]
+        public async Task<ActionResult> UpdateSourcePrices (string partCode, string sourceId, [FromBody] Price[] newPrices)
         {
-            var part = await _unitOfWork.PartsRepository.GetPartByPartCode(partCode);
-            if (part == null) return NotFound("Couldn't find a part with that partcode");
+            var result = await GetPartAndSource(partCode, sourceId);
+            if (result.Value == null) return result.Result;
 
-            var price = part.SupplySources.Select(s =>
-                s.Prices.Where(p => p.Id == priceId).FirstOrDefault()).FirstOrDefault();
+            var part = result.Value.Item1;
+            var supplySource = result.Value.Item2;
 
-            if (price == null) return NotFound("Couldn't find a price break by that Id for this part");
+            foreach(var elem in supplySource.Prices)
+                _unitOfWork.SourcePriceRepository.RemoveSourcePrice(elem);
+
+            var newArr = new Collection<SourcePrice>();
+
+            foreach (var elem in newPrices)
+            {
+                if (elem.UnitPrice < 0) break;
+                if (elem.Quantity <= 0) break;
+
+                var newPrice = new SourcePrice
+                {
+                    UnitPrice = elem.UnitPrice,
+                    Quantity = elem.Quantity
+                };
+
+                if (newArr.ContainsWhere(p => p.UnitPrice == newPrice.UnitPrice && p.Quantity == newPrice.Quantity)) break;
+
+                newArr.Add(newPrice);
+            }
+
+            supplySource.Prices = newArr;
+
+            if (await _unitOfWork.Complete()) return Ok();
+
+            return BadRequest("Issue editting prices");
+        }
+
+        [HttpPatch("{partCode}/{sourceId}/remove-price")]
+        public async Task<ActionResult> RemoveSourcePrice (string partCode, string sourceId, [FromQuery]string priceId)
+        {
+            var result = await GetPartAndSource(partCode, sourceId);
+            if (result.Value == null) return result.Result;
+
+            var part = result.Value.Item1;
+            var supplySource = result.Value.Item2;
+
+            int priceIdVal = 0;
+            if (!int.TryParse(priceId, out priceIdVal)) return BadRequest("Price Id must be a number");
+
+            var price = await _unitOfWork.SourcePriceRepository.GetSourcePriceById(priceIdVal);
+            if (price == null) return NotFound("Couldn't find a price break by that Id");
+
+            if (!supplySource.Prices.Contains(price)) return BadRequest("This price does not belong to that supply source");
 
             _unitOfWork.SourcePriceRepository.RemoveSourcePrice(price);
 
@@ -196,6 +243,22 @@ namespace API.Controllers
         {
             await Importer.Begin(_unitOfWork);
             return Ok();
+        }
+
+        private async Task<ActionResult<Tuple<Part, SupplySource>>> GetPartAndSource(string partCode, string sourceId)
+        {
+            var part = await _unitOfWork.PartsRepository.GetPartByPartCode(partCode);
+            if (part == null) return NotFound("Couldn't find a part with that partcode");
+
+            int sourceIdVal = 0;
+            if (!int.TryParse(sourceId, out sourceIdVal)) return BadRequest("Source Id must be a number");
+
+            var supplySource = await _unitOfWork.SupplySourceRepository.GetSupplySourceById(sourceIdVal);
+            if (supplySource == null) return NotFound("Couldn't find a supply source with that Id");
+
+            if (!part.SupplySources.Contains(supplySource)) return BadRequest("This supply source does not belong to this partcode");
+
+            return new Tuple<Part, SupplySource>(part, supplySource);
         }
     }
 }

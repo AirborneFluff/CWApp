@@ -13,6 +13,6 @@ namespace API.Interfaces
         Task<Supplier> GetSupplierById(int id);
         Task<PagedList<Supplier>> GetSuppliers(PaginationParams partParams, Func<Supplier, bool> predicate);
         Task<List<Supplier>> GetAllSuppliers();
-        Task<List<string>> GetAllSupplierNames(bool NormalizedName);
+        Task<List<string>> GetAllSupplierNames();
     }
 }
