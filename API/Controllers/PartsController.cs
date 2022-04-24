@@ -118,8 +118,8 @@ namespace API.Controllers
             return BadRequest("Issue removing supply source");
         }
         
-        [HttpPatch("{partCode}/{sourceId}/add-price")]
-        public async Task<ActionResult> AddSourcePrice (string partCode, string sourceId, [FromBody] SourcePrice priceDto)
+        [HttpPost("{partCode}/{sourceId}/add-price")]
+        public async Task<ActionResult<SourcePrice>> AddSourcePrice (string partCode, string sourceId, [FromBody] SourcePrice priceDto)
         {
             var result = await GetPartAndSource(partCode, sourceId);
             if (result.Value == null) return result.Result;
@@ -141,7 +141,8 @@ namespace API.Controllers
 
             supplySource.Prices.Add(price);
 
-            if (await _unitOfWork.Complete()) return Ok();
+            if (await _unitOfWork.Complete())
+                return Ok(supplySource.Prices.FirstOrDefault(x => x.PriceString == price.PriceString));
 
             return BadRequest("Issue adding supply source");
         }

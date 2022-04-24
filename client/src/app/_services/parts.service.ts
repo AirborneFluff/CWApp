@@ -44,7 +44,6 @@ export class PartsService {
       };
       arr.push(price);
     });
-    console.log(arr);
     
     return this.http.patch(this.baseUrl + `parts/${partCode}/${sourceId}/update-prices`, arr);
   }
@@ -70,7 +69,19 @@ export class PartsService {
     return this.http.patch(this.baseUrl + `parts/${partCode}/add-source?supplierName=${supplierName}`, {});
   }
 
-  removeSupplySource(partCode: string, soureceId: number) {
-    return this.http.patch(this.baseUrl + `parts/${partCode}/${soureceId}/remove-source`, {});
+  removeSupplySource(partCode: string, sourceId: number) {
+    return this.http.patch(this.baseUrl + `parts/${partCode}/${sourceId}/remove-source`, {});
+  }
+
+  removeSourcePrice(partCode: string, sourceId: number, priceId: number) {
+    return this.http.patch(this.baseUrl + `parts/${partCode}/${sourceId}/remove-price?priceId=${priceId}`, {});
+  } 
+
+  addSourcePrice(partCode: string, sourceId: number, unitPrice: number, quantity: number) {
+    var body = {
+      unitPrice: unitPrice,
+      quantity: quantity
+    }
+    return this.http.post<SourcePrice>(this.baseUrl + `parts/${partCode}/${sourceId}/add-price`, body);
   } 
 }

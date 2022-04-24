@@ -1,3 +1,4 @@
+using API.Extensions;
 using API.Helpers;
 
 namespace API.Data.Migrations
@@ -75,6 +76,11 @@ namespace API.Data.Migrations
         public async Task<List<Supplier>> GetAllSuppliers()
         {
             return await _context.Suppliers.ToListAsync();
+        }
+
+        public Task<List<Supplier>> GetSuppliersByName(string[] supplierNames)
+        {
+            return _context.Suppliers.Where(s => supplierNames.ContainsWhere(x => x.ToUpper() == s.NormalizedName)).ToListAsync();
         }
     }
 }

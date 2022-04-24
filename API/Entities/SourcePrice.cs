@@ -11,6 +11,7 @@ namespace API.Entities
         [Required]
         public float UnitPrice { get; set; }
         public float Quantity { get; set; } = 1;
+        public string PriceString { get => $"{Quantity}+ {string.Format("{0:0.00000}",UnitPrice)}"; }
 
     }
 }

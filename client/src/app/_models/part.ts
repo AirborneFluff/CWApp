@@ -25,6 +25,7 @@ export interface SupplySource {
 }
 
 export interface SourcePrice {
+    id: number,
     unitPrice: number,
     quantity: number,
     priceString: string

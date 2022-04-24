@@ -60,5 +60,22 @@ namespace API.Controllers
 
             return BadRequest("Issue deleting supplier");
         }
+
+        [HttpPut("{supplierName}")]
+        public async Task<ActionResult> MergeSuppliers(string supplierName, [FromBody] IEnumerable<string> suppliers)
+        {
+            var mainSupplier = await _unitOfWork.SuppliersRepository.GetSupplierByName(supplierName);
+            if (mainSupplier == null) return BadRequest("No supplier found by that name");
+            if (suppliers == null) return BadRequest("You must provide suppliers to merge");
+
+            List<Supplier> suppliersToMerge = new List<Supplier>();
+            foreach(var name in suppliers)
+                suppliersToMerge.Add(await _unitOfWork.SuppliersRepository.GetSupplierByName(name));
+
+            
+
+            await _unitOfWork.Complete();
+            return Ok();
+        }
     }
 }
