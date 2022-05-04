@@ -10,6 +10,7 @@ namespace API.Data
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<SupplySource> SupplySources { get; set; }
         public DbSet<SourcePrice> SourcePrices { get; set; }
+        public DbSet<PartsList> PartsLists { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

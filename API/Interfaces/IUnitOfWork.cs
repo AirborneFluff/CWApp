@@ -6,6 +6,7 @@ namespace API.Interfaces
         ISuppliersRepository SuppliersRepository { get; }
         ISupplySourceRepository SupplySourceRepository { get; }
         ISourcePriceRepository SourcePriceRepository { get; }
+        IPartsListsRepository PartsListsRepository { get; }
         Task<bool> Complete();
         bool HasChanges();
     }
