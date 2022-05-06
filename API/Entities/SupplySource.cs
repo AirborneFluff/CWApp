@@ -9,7 +9,6 @@ namespace API.Entities
 
         [Required]
         public Supplier Supplier { get; set; }
-        [JsonIgnore]
         public int SupplierId {get; set;}
         public string SupplierSKU { get; set; }
         public string ManufacturerSKU { get; set; }

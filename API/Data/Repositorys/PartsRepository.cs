@@ -1,6 +1,6 @@
 using AutoMapper.QueryableExtensions;
 
-namespace API.Data
+namespace API.Data.Repositorys
 {
     public class PartsRepository : IPartsRepository
     {

@@ -3,6 +3,7 @@ using System;
 using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220506083301_AddedProducts")]
+    partial class AddedProducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.4");
@@ -29,16 +31,11 @@ namespace API.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("BOMs");
                 });
@@ -200,15 +197,6 @@ namespace API.Data.Migrations
                     b.ToTable("SupplySources");
                 });
 
-            modelBuilder.Entity("API.Entities.BOM", b =>
-                {
-                    b.HasOne("API.Entities.Product", null)
-                        .WithMany("BOMs")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("API.Entities.BOMEntry", b =>
                 {
                     b.HasOne("API.Entities.BOM", null)
@@ -252,11 +240,6 @@ namespace API.Data.Migrations
             modelBuilder.Entity("API.Entities.Part", b =>
                 {
                     b.Navigation("SupplySources");
-                });
-
-            modelBuilder.Entity("API.Entities.Product", b =>
-                {
-                    b.Navigation("BOMs");
                 });
 
             modelBuilder.Entity("API.Entities.SupplySource", b =>

@@ -1,7 +1,7 @@
 using API.Extensions;
 using API.Helpers;
 
-namespace API.Data.Migrations
+namespace API.Data.Repositorys
 {
     public class SuppliersRepository : ISuppliersRepository
     {

@@ -72,11 +72,7 @@ namespace API.Controllers
             List<SupplySource> sourcesToChange = new List<SupplySource>();
 
             foreach(var name in suppliers)
-                suppliersToMerge.Add(await _unitOfWork.SuppliersRepository.GetSupplierByName(name));
-
-            foreach(var supplier in suppliersToMerge)
-                sourcesToChange.Add(await _unitOfWork.SupplySourceRepository.)
-            
+                suppliersToMerge.Add(await _unitOfWork.SuppliersRepository.GetSupplierByName(name));            
 
             await _unitOfWork.Complete();
             return Ok();

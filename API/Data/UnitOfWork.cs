@@ -17,7 +17,8 @@ namespace API.Data
         public ISuppliersRepository SuppliersRepository => new SuppliersRepository(_context);
         public ISupplySourceRepository SupplySourceRepository => new SupplySourceRepository(_context);
         public ISourcePriceRepository SourcePriceRepository => new SourcePriceRepository(_context);
-        public IPartsListsRepository PartsListsRepository => new PartsListRepository(_context);
+        public IBOMsRepository BOMsRepository => new BOMsRepository(_context);
+        public IProductsRepository ProductsRepository => new ProductsRepository(_context);
 
         public async Task<bool> Complete()
         {

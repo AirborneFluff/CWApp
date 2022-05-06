@@ -1,5 +1,6 @@
 global using global::API.Controllers;
 global using global::API.Data;
+global using global::API.Data.Repositorys;
 global using global::API.Entities;
 global using global::API.Extensions;
 global using global::API.Interfaces;
@@ -8,6 +9,7 @@ global using global::API.DTOs.PartDTOs;
 global using global::API.DTOs.SourcePriceDTOs;
 global using global::API.DTOs.SupplySourceDTOs;
 global using global::API.DTOs.SupplierDTOs;
+global using global::API.DTOs.BOMDTOs;
 global using global::AutoMapper;
 global using global::Microsoft.EntityFrameworkCore;
 global using global::Microsoft.AspNetCore.Mvc;

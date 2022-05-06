@@ -1,4 +1,4 @@
-namespace API.Data
+namespace API.Data.Repositorys
 {
     public class SourcePriceRepository : ISourcePriceRepository
     {

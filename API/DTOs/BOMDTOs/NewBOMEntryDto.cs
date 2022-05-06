@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace API.DTOs.PartsListDTOs
+namespace API.DTOs.BOMDTOs
 {
-    public class NewPartsListEntryDto
+    public class NewBOMEntryDto
     {
         [Required]
         public string PartCode { get; set; }

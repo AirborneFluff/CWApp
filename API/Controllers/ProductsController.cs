@@ -1,67 +1,68 @@
 using System.Reflection.Metadata.Ecma335;
-using API.DTOs.PartsListDTOs;
 using API.Extensions;
 
 namespace API.Controllers
 {
-    public class PartsListsController : BaseApiController
+    public class ProductsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
-        public PartsListsController(IUnitOfWork unitOfWork)
+        public ProductsController(IUnitOfWork unitOfWork)
         {
             this._unitOfWork = unitOfWork;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<PartsList>> GetPartsLists()
+        [HttpGet("{productTitle}/boms")]
+        public async Task<ActionResult<BOM>> GetBOMs(string productTitle)
         {
-            var list = await _unitOfWork.PartsListsRepository.GetAllPartsLists();
+            var list = await _unitOfWork.BOMsRepository.GetAllBOMs();
             if (list == null) return NotFound("No parts lists found");
-            return Ok(list);
+            return Ok("list");
         }
 
-        [HttpGet("{title}")]
-        public async Task<ActionResult<PartsList>> GetPartsList(string title)
+        [HttpGet("{productTitle}/boms/{title}")]
+        public async Task<ActionResult<BOM>> GetBOM(string title)
         {
-            var list = await _unitOfWork.PartsListsRepository.GetPartsListFromTitle(title);
+            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
             if (list == null) return NotFound("Couldn't find a parts list with that title");
             return Ok(list);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<PartsList>> AddPartsList([FromBody] NewPartsListDto newPartsList)
+        [HttpPost("{productTitle}/boms")]
+        public async Task<ActionResult<BOM>> AddBOM([FromBody] NewBOMDto newBOM)
         {
-            var list = await _unitOfWork.PartsListsRepository.GetPartsListFromTitle(newPartsList.Title);
+            
+            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(newBOM.Title);
             if (list != null) return BadRequest("A part list already exists with that title");
 
-            list = new PartsList
+            list = new BOM
             {
-                Title = newPartsList.Title,
-                Description = newPartsList.Description
+                Title = newBOM.Title,
+                Description = newBOM.Description
             };
 
-            _unitOfWork.PartsListsRepository.AddNewPartsList(list);
+            _unitOfWork.BOMsRepository.AddNewBOM(list);
+            
 
             if (await _unitOfWork.Complete()) return Ok(list);
 
             return BadRequest("Issue creating new parts list");
         }
 
-        [HttpDelete("{title}")]
-        public async Task<ActionResult<PartsList>> RemovePartsList(string title)
+        [HttpDelete("{productTitle}/boms/{title}")]
+        public async Task<ActionResult<BOM>> RemoveBOM(string title)
         {
-            var list = await _unitOfWork.PartsListsRepository.GetPartsListFromTitle(title);
+            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
             if (list == null) return NotFound("Couldn't find a parts list with that title");
 
-            _unitOfWork.PartsListsRepository.RemovePartsList(list);
+            _unitOfWork.BOMsRepository.RemoveBOM(list);
             if (await _unitOfWork.Complete()) return Ok();
             return BadRequest("Issue deleting parts list");
         }
 
-        [HttpPost("{title}/parts")]
-        public async Task<ActionResult<PartsList>> AddPartToList(string title, [FromBody] NewPartsListEntryDto newEntry)
+        [HttpPost("{productTitle}/boms/{title}/parts")]
+        public async Task<ActionResult<BOM>> AddPartToList(string title, [FromBody] NewBOMEntryDto newEntry)
         {
-            var list = await _unitOfWork.PartsListsRepository.GetPartsListFromTitle(title);
+            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
             if (list == null) return NotFound("Couldn't find a parts list with that title");
             
             var part = await _unitOfWork.PartsRepository.GetPartByPartCode(newEntry.PartCode);
@@ -69,10 +70,10 @@ namespace API.Controllers
 
             if (list.Parts.ContainsWhere(p => p.PartId == part.Id)) return BadRequest("That part already has a quantity listed");
 
-            var entry = new PartsListEntry
+            var entry = new BOMEntry
             {
                 PartId = part.Id,
-                PartsListId = list.Id,
+                BOMId = list.Id,
                 Quantity = newEntry.Quantity
             };
 

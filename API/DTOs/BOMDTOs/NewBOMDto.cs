@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace API.DTOs.PartsListDTOs
+namespace API.DTOs.BOMDTOs
 {
-    public class NewPartsListDto
+    public class NewBOMDto
     {
         [Required]
         public string Title { get; set; }
