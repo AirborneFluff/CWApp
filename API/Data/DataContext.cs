@@ -20,17 +20,22 @@ namespace API.Data
             modelBuilder.Entity<Part>().HasIndex(x => x.PartCode).IsUnique();
             modelBuilder.Entity<Supplier>().HasIndex(x => x.NormalizedName).IsUnique();
 
+
+
+/*
             modelBuilder.Entity<BOMEntry>()
-                .HasForeignKey(e => e.PartId))
+                .HasForeignKey(e => e.BOMId)
                 .WillCascadeOnDelete(false);
             
             modelBuilder.Entity<BOMEntry>()
-                .HasForeignKey(e => e.BOMId))
+                .HasForeignKey(e => e.PartId)
                 .WillCascadeOnDelete(false);
-                
+            
             modelBuilder.Entity<BOM>()
-                .HasForeignKey(b => b.ProductId))
+                .HasForeignKey(b => b.ProductId)
                 .WillCascadeOnDelete(false);
+
+                /*
 
             modelBuilder.Entity<SourcePrice>()
                 .HasForeignKey(p => p.SupplySourceId)
@@ -41,6 +46,8 @@ namespace API.Data
                 .WillCascadeOnDelete(false)
                 .HasForeignKey(s => s.SupplierId)
                 .WillCascadeOnDelete(false);
+
+                */
             }
     }
 }
