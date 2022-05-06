@@ -27,5 +27,14 @@ namespace API.Data
         {
             _context.SupplySources.Remove(source);
         }
+        
+        public async Task ReplaceSourcesSupplier(List<SupplySource>, int oldSupplierId, int newSupplierId)
+        {
+            var sources = _context.SupplySources.Where(s => s.SupplierId == oldSupplierId).ToListAsync();
+            foreach (var source in sources) {
+                source.SupplierId = newSupplierId;
+            }
+            
+        }
     }
 }

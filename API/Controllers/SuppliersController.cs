@@ -69,9 +69,13 @@ namespace API.Controllers
             if (suppliers == null) return BadRequest("You must provide suppliers to merge");
 
             List<Supplier> suppliersToMerge = new List<Supplier>();
+            List<SupplySource> sourcesToChange = new List<SupplySource>();
+
             foreach(var name in suppliers)
                 suppliersToMerge.Add(await _unitOfWork.SuppliersRepository.GetSupplierByName(name));
 
+            foreach(var supplier in suppliersToMerge)
+                sourcesToChange.Add(await _unitOfWork.SupplySourceRepository.)
             
 
             await _unitOfWork.Complete();
