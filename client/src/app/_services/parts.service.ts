@@ -45,7 +45,7 @@ export class PartsService {
       arr.push(price);
     });
     
-    return this.http.patch(this.baseUrl + `parts/${partCode}/${sourceId}/update-prices`, arr);
+    return this.http.put(this.baseUrl + `parts/${partCode}/sources/${sourceId}/prices`, arr);
   }
 
   updateSupplySource(partCode: String, source: SupplySource) {
@@ -59,22 +59,19 @@ export class PartsService {
       roHS: source.roHS
     }
     
-    return this.http.patch(this.baseUrl + `parts/${partCode}/${source.id}`, body);
+    return this.http.put(this.baseUrl + `parts/${partCode}/sources/${source.id}`, body);
   }
 
   addSupplySource(partCode: string, supplierName: string) {
-    var body = {
-      supplierName: supplierName
-    }
-    return this.http.patch(this.baseUrl + `parts/${partCode}/add-source?supplierName=${supplierName}`, {});
+    return this.http.post(this.baseUrl + `parts/${partCode}/sources?supplierName=${supplierName}`, {});
   }
 
   removeSupplySource(partCode: string, sourceId: number) {
-    return this.http.patch(this.baseUrl + `parts/${partCode}/${sourceId}/remove-source`, {});
+    return this.http.delete(this.baseUrl + `parts/${partCode}/sources/${sourceId}`, {});
   }
 
   removeSourcePrice(partCode: string, sourceId: number, priceId: number) {
-    return this.http.patch(this.baseUrl + `parts/${partCode}/${sourceId}/remove-price?priceId=${priceId}`, {});
+    return this.http.delete(this.baseUrl + `parts/${partCode}/sources/${sourceId}/prices/${priceId}`, {});
   } 
 
   addSourcePrice(partCode: string, sourceId: number, unitPrice: number, quantity: number) {
@@ -82,6 +79,6 @@ export class PartsService {
       unitPrice: unitPrice,
       quantity: quantity
     }
-    return this.http.post<SourcePrice>(this.baseUrl + `parts/${partCode}/${sourceId}/add-price`, body);
+    return this.http.post<SourcePrice>(this.baseUrl + `parts/${partCode}/sources/${sourceId}/prices`, body);
   } 
 }

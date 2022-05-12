@@ -43,7 +43,16 @@ namespace API.Controllers
             return Ok(part);
         }
 
-        [HttpPost("create")]
+        [HttpDelete("{partCode}")]
+        public async Task<ActionResult> DeletePart(string partCode)
+        {
+            await _unitOfWork.PartsRepository.RemovePartByPartCode(partCode);
+            if (await _unitOfWork.Complete()) return Ok();
+
+            return BadRequest("Issue deleting part");
+        }
+
+        [HttpPost]
         public async Task<ActionResult> CreatePart([FromBody] NewPartDto part)
         {
             if (await _unitOfWork.PartsRepository.Exists(part.PartCode)) return BadRequest("A part already exists with that partcode");
@@ -55,8 +64,8 @@ namespace API.Controllers
             return BadRequest("Problem creating part");
         }
 
-        [HttpPatch("{partCode}/add-source")]
-        public async Task<ActionResult> AddSupplySource (string partCode, [FromQuery] string supplierName)
+        [HttpPost("{partCode}/sources")]
+        public async Task<ActionResult> AddSupplySource(string partCode, string supplierName)
         {
             var part = await _unitOfWork.PartsRepository.GetPartByPartCode(partCode);
             if (part == null) return NotFound("Couldn't find a part with that partcode");
@@ -76,7 +85,7 @@ namespace API.Controllers
             return BadRequest("Issue adding supply source");
         }
 
-        [HttpPatch("{partCode}/{sourceId}")]
+        [HttpPut("{partCode}/sources/{sourceId}")]
         public async Task<ActionResult> UpdateSupplySource (string partCode, string sourceId, [FromBody] UpdateSupplySourceDto sourceDto)
         {
             var result = await GetPartAndSource(partCode, sourceId);
@@ -101,7 +110,7 @@ namespace API.Controllers
             return BadRequest("Issue updating supply source, did you make any changes?");
         }
 
-        [HttpPatch("{partCode}/{sourceId}/remove-source")]
+        [HttpDelete("{partCode}/sources/{sourceId}")]
         public async Task<ActionResult> RemoveSupplySource (string partCode, string sourceId)
         {
             
@@ -118,7 +127,7 @@ namespace API.Controllers
             return BadRequest("Issue removing supply source");
         }
         
-        [HttpPost("{partCode}/{sourceId}/add-price")]
+        [HttpPost("{partCode}/sources/{sourceId}/prices")]
         public async Task<ActionResult<SourcePrice>> AddSourcePrice (string partCode, string sourceId, [FromBody] SourcePrice priceDto)
         {
             var result = await GetPartAndSource(partCode, sourceId);
@@ -147,7 +156,7 @@ namespace API.Controllers
             return BadRequest("Issue adding supply source");
         }
 
-        [HttpPatch("{partCode}/{sourceId}/update-prices")]
+        [HttpPut("{partCode}/sources/{sourceId}/prices")]
         public async Task<ActionResult> UpdateSourcePrices (string partCode, string sourceId, [FromBody] Price[] newPrices)
         {
             var result = await GetPartAndSource(partCode, sourceId);
@@ -184,8 +193,8 @@ namespace API.Controllers
             return BadRequest("Issue editting prices");
         }
 
-        [HttpPatch("{partCode}/{sourceId}/remove-price")]
-        public async Task<ActionResult> RemoveSourcePrice (string partCode, string sourceId, [FromQuery]string priceId)
+        [HttpDelete("{partCode}/sources/{sourceId}/prices/{priceId}")]
+        public async Task<ActionResult> RemoveSourcePrice (string partCode, string sourceId, string priceId)
         {
             var result = await GetPartAndSource(partCode, sourceId);
             if (result.Value == null) return result.Result;
@@ -206,15 +215,6 @@ namespace API.Controllers
             if (await _unitOfWork.Complete()) return Ok();
 
             return BadRequest("Issue removing price break");
-        }
-
-        [HttpDelete("delete")]
-        public async Task<ActionResult> DeletePart([FromQuery]string partCode)
-        {
-            await _unitOfWork.PartsRepository.RemovePartByPartCode(partCode);
-            if (await _unitOfWork.Complete()) return Ok();
-
-            return BadRequest("Issue deleting part");
         }
 
 
