@@ -34,7 +34,7 @@ namespace API.Controllers
         }
         
 
-        [HttpGet("{partcode}")]
+        [HttpGet("{partCode}")]
         public async Task<ActionResult<Part>> GetPart(string partCode)
         {
             var part = await _unitOfWork.PartsRepository.GetPartByPartCode(partCode);
