@@ -6,6 +6,7 @@ namespace API.Helpers
         {
             CreateMap<Part, PartDto>();
             CreateMap<NewPartDto, Part>();
+            CreateMap<UpdateSupplySourceDto, SupplySource>();
         }
     }
 }

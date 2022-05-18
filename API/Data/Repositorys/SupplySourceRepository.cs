@@ -35,5 +35,10 @@ namespace API.Data.Repositorys
                 source.SupplierId = newSupplierId;
             }
         }
+
+        public void Update(SupplySource source)
+        {
+            _context.Entry(source).State = EntityState.Modified;
+        }
     }
 }

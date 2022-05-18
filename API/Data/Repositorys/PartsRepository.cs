@@ -14,7 +14,7 @@ namespace API.Data.Repositorys
 
         public void AddPart(NewPartDto part)
         {
-            var result = _context.Parts.Add(_mapper.Map<Part>(part));
+            _context.Parts.Add(_mapper.Map<Part>(part));
         }
 
         public async Task<bool> Exists(string partCode)

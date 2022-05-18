@@ -1,9 +1,11 @@
 using System.Reflection.Metadata.Ecma335;
+using API.DTOs.ProductsDTOs;
+using API.Entities;
 using API.Extensions;
 
 namespace API.Controllers
 {
-    public class ProductsController : BaseApiController
+    public partial class ProductsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
         public ProductsController(IUnitOfWork unitOfWork)
@@ -11,77 +13,28 @@ namespace API.Controllers
             this._unitOfWork = unitOfWork;
         }
 
-        [HttpGet("{productTitle}/boms")]
-        public async Task<ActionResult<BOM>> GetBOMs(string productTitle)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            var list = await _unitOfWork.BOMsRepository.GetAllBOMs();
-            if (list == null) return NotFound("No parts lists found");
-            return Ok("list");
+            var products = await _unitOfWork.ProductsRepository.GetAllProducts();
+            if (products == null) return NotFound("No products exists");
+
+            return Ok(products);
         }
 
-        [HttpGet("{productTitle}/boms/{title}")]
-        public async Task<ActionResult<BOM>> GetBOM(string title)
+        [HttpPost]
+        public async Task<ActionResult> CreateNewProduct([FromBody] NewProductDto newProduct)
         {
-            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
-            if (list == null) return NotFound("Couldn't find a parts list with that title");
-            return Ok(list);
-        }
-
-        [HttpPost("{productTitle}/boms")]
-        public async Task<ActionResult<BOM>> AddBOM([FromBody] NewBOMDto newBOM)
-        {
-            
-            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(newBOM.Title);
-            if (list != null) return BadRequest("A part list already exists with that title");
-
-            list = new BOM
+            if (await _unitOfWork.ProductsRepository.Exists(newProduct.Name)) return BadRequest("Product with this name already exists");
+            var product = new Product
             {
-                Title = newBOM.Title,
-                Description = newBOM.Description
+                Name = newProduct.Name,
+                Description = newProduct.Description
             };
+            _unitOfWork.ProductsRepository.AddNewProduct(product);
+            if (await _unitOfWork.Complete()) return Ok(product);
 
-            _unitOfWork.BOMsRepository.AddNewBOM(list);
-            
-
-            if (await _unitOfWork.Complete()) return Ok(list);
-
-            return BadRequest("Issue creating new parts list");
-        }
-
-        [HttpDelete("{productTitle}/boms/{title}")]
-        public async Task<ActionResult<BOM>> RemoveBOM(string title)
-        {
-            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
-            if (list == null) return NotFound("Couldn't find a parts list with that title");
-
-            _unitOfWork.BOMsRepository.RemoveBOM(list);
-            if (await _unitOfWork.Complete()) return Ok();
-            return BadRequest("Issue deleting parts list");
-        }
-
-        [HttpPost("{productTitle}/boms/{title}/parts")]
-        public async Task<ActionResult<BOM>> AddPartToList(string title, [FromBody] NewBOMEntryDto newEntry)
-        {
-            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
-            if (list == null) return NotFound("Couldn't find a parts list with that title");
-            
-            var part = await _unitOfWork.PartsRepository.GetPartByPartCode(newEntry.PartCode);
-            if (part == null) return NotFound("Couldn't find a part by that partcode");
-
-            if (list.Parts.ContainsWhere(p => p.PartId == part.Id)) return BadRequest("That part already has a quantity listed");
-
-            var entry = new BOMEntry
-            {
-                PartId = part.Id,
-                BOMId = list.Id,
-                Quantity = newEntry.Quantity
-            };
-
-            list.Parts.Add(entry);
-
-            if(await _unitOfWork.Complete()) return Ok(list);
-            
-            return BadRequest("Issue adding part to list");
+            return BadRequest("Problem creating new product");
         }
     }
 }
