@@ -36,5 +36,16 @@ namespace API.Controllers
 
             return BadRequest("Problem creating new product");
         }
+
+        [HttpDelete("{productId}")]
+        public async Task<ActionResult> DeleteProduct(int productId)
+        {
+            var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
+            if (product == null) NotFound("No product found by that name");
+            _unitOfWork.ProductsRepository.RemoveProduct(product);
+            if(await _unitOfWork.Complete()) return Ok();
+
+            return BadRequest("Problem removing product");
+        }
     }
 }

@@ -2,46 +2,57 @@ namespace API.Controllers
 {
     public partial class ProductsController
     {
-        [HttpGet("{productTitle}/boms")]
-        public async Task<ActionResult<BOM>> GetBOMs(string productTitle)
+        [HttpGet("{productId}/boms")]
+        public async Task<ActionResult<BOM>> GetBOMs(int productId)
         {
-            var list = await _unitOfWork.BOMsRepository.GetAllBOMs();
+            var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
+            if (product == null) NotFound("No product found by that id");
+
+            var list = await _unitOfWork.BOMsRepository.GetBOMs(product);
             if (list == null) return NotFound("No parts lists found");
             return Ok(list);
         }
 
-        [HttpGet("{productTitle}/boms/{title}")]
-        public async Task<ActionResult<BOM>> GetBOM(string title)
+        [HttpGet("{productId}/boms/{title}")]
+        public async Task<ActionResult<BOM>> GetBOM(string title, int productId)
         {
+            var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
+            if (product == null) NotFound("No product found by that id");
+
             var partsList = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
             if (partsList == null) return NotFound("Couldn't find a parts list with that title");
             return Ok(partsList);
         }
 
-        [HttpPost("{productTitle}/boms")]
-        public async Task<ActionResult<BOM>> AddBOM([FromBody] NewBOMDto newBOM)
+        [HttpPost("{productId}/boms")]
+        public async Task<ActionResult<BOM>> AddBOM([FromBody] NewBOMDto newBOM, int productId)
         {
+            var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
+            if (product == null) NotFound("No product found by that id");
             
             var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(newBOM.Title);
             if (list != null) return BadRequest("A part list already exists with that title");
 
             list = new BOM
             {
+                ProductId = product.Id,
                 Title = newBOM.Title,
                 Description = newBOM.Description
             };
 
             _unitOfWork.BOMsRepository.AddNewBOM(list);
-            
 
             if (await _unitOfWork.Complete()) return Ok(list);
 
             return BadRequest("Issue creating new parts list");
         }
 
-        [HttpDelete("{productTitle}/boms/{title}")]
-        public async Task<ActionResult<BOM>> RemoveBOM(string title)
+        [HttpDelete("{productId}/boms/{title}")]
+        public async Task<ActionResult<BOM>> RemoveBOM(string title, int productId)
         {
+            var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
+            if (product == null) NotFound("No product found by that id");
+
             var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
             if (list == null) return NotFound("Couldn't find a parts list with that title");
 
@@ -50,9 +61,12 @@ namespace API.Controllers
             return BadRequest("Issue deleting parts list");
         }
 
-        [HttpPost("{productTitle}/boms/{title}/parts")]
-        public async Task<ActionResult<BOM>> AddPartToList(string title, [FromBody] NewBOMEntryDto newEntry)
+        [HttpPost("{productId}/boms/{title}/parts")]
+        public async Task<ActionResult<BOM>> AddPartToList(int productId, string title, [FromBody] NewBOMEntryDto newEntry)
         {
+            var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
+            if (product == null) return NotFound("Couldn't find a product by that id");
+
             var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
             if (list == null) return NotFound("Couldn't find a parts list with that title");
             
