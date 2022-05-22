@@ -8,6 +8,11 @@ namespace API.Data.Repositorys
             this._context = context;
         }
 
+        public void AddSupplySource(SupplySource source)
+        {
+            _context.SupplySources.Add(source);
+        }
+
         public async Task<SupplySource> GetSupplySource(string partCode, string supplierName, string supplierSKU)
         {
             var part = await _context.Parts.FirstOrDefaultAsync(x => x.PartCode == partCode);

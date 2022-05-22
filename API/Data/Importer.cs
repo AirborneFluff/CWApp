@@ -1,3 +1,4 @@
+using System.Reflection.Metadata.Ecma335;
 using System.Text.RegularExpressions;
 using API.Extensions;
 
@@ -129,11 +130,12 @@ namespace API.Data
 
             // Get Part
             Part part = await unitOfWork.PartsRepository.GetPartByPartCode(fieldData[(int)Fields.PartCode]);
+            if (part == null) return;
 
             // Get Suppliers
-            Supplier supplier1 = _cachedSuppliers.FirstOrDefault(s => s.Name == fieldData[(int)Fields.Supplier1]);
-            Supplier supplier2 = _cachedSuppliers.FirstOrDefault(s => s.Name == fieldData[(int)Fields.Supplier2]);
-            Supplier supplier3 = _cachedSuppliers.FirstOrDefault(s => s.Name == fieldData[(int)Fields.Supplier3]);
+            Supplier supplier1 = await unitOfWork.SuppliersRepository.GetSupplierByName(fieldData[(int)Fields.Supplier1]);
+            Supplier supplier2 = await unitOfWork.SuppliersRepository.GetSupplierByName(fieldData[(int)Fields.Supplier2]);
+            Supplier supplier3 = await unitOfWork.SuppliersRepository.GetSupplierByName(fieldData[(int)Fields.Supplier3]);
 
             SupplySource source1;
             SupplySource source2;
@@ -149,141 +151,105 @@ namespace API.Data
                 source1.SupplierSKU = fieldData[(int)Fields.Code1];
                 source1.Notes = "--Import--\n" + fieldData[(int)Fields.Price1];
                 source1.RoHS = _RoHS;
+                source1.PartId = part.Id;
 
-                part.SupplySources.Add(source1);
+                unitOfWork.SupplySourceRepository.AddSupplySource(source1);
             }
+            
             if (supplier2 != null)
             {
                 bool _RoHS = false;
                 bool.TryParse(fieldData[(int)Fields.RoHS2], out _RoHS);
 
                 source2 = new SupplySource();
-                source2.Supplier = supplier1;
+                source2.Supplier = supplier2;
                 source2.SupplierSKU = fieldData[(int)Fields.Code2];
                 source2.Notes = "--Import--\n" + fieldData[(int)Fields.Price2];
                 source2.RoHS = _RoHS;
+                source2.PartId = part.Id;
 
-                part.SupplySources.Add(source2);
+                unitOfWork.SupplySourceRepository.AddSupplySource(source2);
             }
+            
             if (supplier3 != null)
             {
                 bool _RoHS = false;
                 bool.TryParse(fieldData[(int)Fields.RoHS3], out _RoHS);
 
                 source3 = new SupplySource();
-                source3.Supplier = supplier1;
+                source3.Supplier = supplier3;
                 source3.SupplierSKU = fieldData[(int)Fields.Code3];
                 source3.Notes = "--Import--\n" + fieldData[(int)Fields.Price3];
                 source3.RoHS = _RoHS;
+                source3.PartId = part.Id;
 
-                part.SupplySources.Add(source3);
+                unitOfWork.SupplySourceRepository.AddSupplySource(source3);
             }
-            await unitOfWork.Complete();
         }
 
-        /*
-        public static async void ConvertLine(string RowData, List<string> ErrorLog, IUnitOfWork unitOfWork)
+        
+        public static async void GetPricesFromLine(string RowData, IUnitOfWork unitOfWork)
         {
             RowData = Regex.Replace(RowData, @"(?<=\,)""|""(?=\,)|^""|""$", "");
             string[] fieldData = RowData.Split(',');
-            if (fieldData.Length != 22)
+            if (fieldData.Length != 22) return;
+
+            // Get Part
+            Part part = await unitOfWork.PartsRepository.GetPartByPartCode(fieldData[(int)Fields.PartCode]);
+            if (part == null) return;
+
+            foreach (var source in part.SupplySources)
             {
-                ErrorLog.Add($"\nCannot convert \"{RowData}\"\nData doesn't contain the right number of collumns: Line has -> {fieldData.Length} collums");
-                return;
-            }
-
-            
-
-            
-
-            unitOfWork.PartsRepository.AddPart(newPart);
-            await unitOfWork.Complete();
-            var part = await unitOfWork.PartsRepository.GetPartByPartCode(_partCode);
-
-            #region Supply Sources
-
-            // Parsing supplier names
-            string _name1 = fieldData[(int)Fields.Supplier1];
-            string _name2 = fieldData[(int)Fields.Supplier2];
-            string _name3 = fieldData[(int)Fields.Supplier3];
-
-            List<int> _sourceFieldIndexs = new List<int>();
-            if (!string.IsNullOrEmpty(_name1))
-            {
-                var supplier = await unitOfWork.SuppliersRepository.GetSupplierByName(_name1);
-                if (supplier == null)
-                {
-                    unitOfWork.SuppliersRepository.AddSupplier(new NewSupplierDto{ Name = _name1 });
-                    await unitOfWork.Complete();
-                    supplier = await unitOfWork.SuppliersRepository.GetSupplierByName(_name1);
-                }
-
-                bool _RoHS = false;
-                bool.TryParse(fieldData[(int)Fields.RoHS1], out _RoHS);
-
-                var supplySource = new SupplySource
-                {
-                    Supplier = supplier,
-                    SupplierSKU = fieldData[(int)Fields.Code1],
-                    Notes = "--Import--\n" + fieldData[_sourceFieldIndexs[0]],
-                    RoHS = _RoHS
-                };
-                part.SupplySources.Add(supplySource);
-                _sourceFieldIndexs.Add(6);
-            }
-            #endregion
-
-            /*
-            #region Source Data
-            int i = 0;
-            foreach (var source in _supplySource)
-            {
-                source.PriceBreaks = new List<SourcePrice>();
+                source.Prices = new List<SourcePrice>();
 
                 // Pack Size
                 Regex rx_packSize = new Regex(@"(?<!\=\s)(?<PackSize>\b\d+[kM]?)(?=\s?(?>PACK|PK|REEL|LENGTH|BX))", RegexOptions.IgnoreCase);
-                Match rxC_packSize = rx_packSize.Match(fieldData[_sourceFieldIndexs[i]]);
+                Match rxC_packSize = rx_packSize.Match(source.Notes);
                 string _packSize = rxC_packSize.Groups[1].Value;
-                if (_packSize == "") source.PackSize = "1";
-                else source.PackSize = _packSize;
+                if (_packSize == "") source.PackSize = 1;
+                else
+                {
+                    float packSize = 1;
+                    float.TryParse(_packSize, out packSize);
+                    source.PackSize = packSize;
+                }
 
                 // Minimum Order Quantity
                 Regex rx_moq = new Regex(@"(?<=(?>MOQ|O\/M)\=)\s?(?<OM>\b\d+[kM]?)\s?(?>PACK[s]?|PK[s]?|BX[s]?)?", RegexOptions.IgnoreCase);
-                Match rxC_moq = rx_moq.Match(fieldData[_sourceFieldIndexs[i]]);
+                Match rxC_moq = rx_moq.Match(source.Notes);
                 string _moq = rxC_moq.Groups[1].Value;
-                if (_moq == "") source.MinimumOrder = "1";
-                else source.MinimumOrder = _moq;
+                if (_moq == "") source.MinimumOrderQuantity = 1;
+                else
+                {
+                    float moq = 1;
+                    float.TryParse(_moq, out moq);
+                    source.MinimumOrderQuantity = moq;
+                }
 
                 // Price Breaks
                 Regex rx_quantityPrice = new Regex(@"(?<Quantity>\d+\.?\d*|E\/?C|E\/?C\s*?PRICE)\s*?[\+|\@|\=]\s+?(?<Price>\d+\.\d+)", RegexOptions.IgnoreCase);
-                MatchCollection rxC_quantityPrice = rx_quantityPrice.Matches(fieldData[_sourceFieldIndexs[i]]);
-                double _quantityStore;
-                double _priceStore;
+                MatchCollection rxC_quantityPrice = rx_quantityPrice.Matches(source.Notes);
+                float _quantityStore;
+                float _priceStore;
                 foreach (Match match in rxC_quantityPrice)
                 {
                     if ((match.Groups[1].Value.Contains("E/C") || match.Groups[1].Value.Contains("EC"))
-                        && double.TryParse(match.Groups[2].Value, out _priceStore))
+                        && float.TryParse(match.Groups[2].Value, out _priceStore))
                     {
-                        source.PriceBreaks.Add(new SourcePrice(_priceStore, 1));
+                        source.Prices.Add(new SourcePrice { UnitPrice = _priceStore});
                     }
-                    else if (double.TryParse(match.Groups[1].Value, out _quantityStore)
-                        && double.TryParse(match.Groups[2].Value, out _priceStore))
+                    else if (float.TryParse(match.Groups[1].Value, out _quantityStore)
+                        && float.TryParse(match.Groups[2].Value, out _priceStore))
                     {
-                        source.PriceBreaks.Add(new SourcePrice(_priceStore, _quantityStore));
+                        source.Prices.Add(new SourcePrice {
+                            UnitPrice = _priceStore,
+                            Quantity = _quantityStore
+                            });
                     }
                 }
-
-                if (source.PriceBreaks.Count() == 0)
-                {
-                    _noneParsableLines += $"{newPart.PartCode} - {source.SupplierName} - {Enum.GetName(typeof(Fields), _sourceFieldIndexs[i])}\n" + fieldData[_sourceFieldIndexs[i]] + "\n\n";
-                }
-
-                i++;
             }
-            newPart.SupplySources = _supplySource;
-            #endregion
         }
-        */
+
         static bool PartCodeExists(string partCode)
         {
             if (_existingPartCodes.Contains(partCode)) return true;
@@ -299,7 +265,6 @@ namespace API.Data
         {
             _existingPartCodes = new List<string>();
             _existingSupplierNames = new List<string>();
-            _cachedSuppliers = new List<Supplier>();
             
             string text = await File.ReadAllTextAsync("Data/table.txt");
             string[] lines = text.Split('\n');
@@ -312,16 +277,14 @@ namespace API.Data
             foreach (var line in lines)
                 GetSuppliersFromLine(line, unitOfWork);
             await unitOfWork.Complete();
-            _cachedSuppliers = await unitOfWork.SuppliersRepository.GetAllSuppliers();
-
+            
             foreach (var line in lines)
                 GetSupplySourcesFromLine(line, unitOfWork);
+            await unitOfWork.Complete();
 
-            /*
-                        foreach (var line in lines)
-                            GetPricesFromLine(line, unitOfWork);
-                        await unitOfWork.Complete();
-                        */
+            foreach (var line in lines)
+                GetPricesFromLine(line, unitOfWork);
+            await unitOfWork.Complete();
         }
     }
 }

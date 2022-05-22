@@ -15,7 +15,6 @@ namespace API.Entities
         public string BufferUnit { get; set; }
         public ICollection<SupplySource> SupplySources { get; set; }
 
-
         public string Buffer { get { return $"{BufferValue} {BufferUnit}"; } }
     }
 }

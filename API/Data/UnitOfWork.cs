@@ -1,4 +1,3 @@
-using API.Data.Migrations;
 using API.Interfaces;
 
 namespace API.Data

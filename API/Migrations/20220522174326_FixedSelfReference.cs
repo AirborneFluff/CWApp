@@ -2,9 +2,9 @@
 
 #nullable disable
 
-namespace API.Data.Migrations
+namespace API.Migrations
 {
-    public partial class RemovedSupplierSKUContraint : Migration
+    public partial class FixedSelfReference : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

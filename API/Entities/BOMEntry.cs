@@ -2,7 +2,6 @@ namespace API.Entities
 {
     public class BOMEntry
     {
-        public int Id { get; set; }
         public int PartId { get; set; }
         public int BOMId { get; set; }
 

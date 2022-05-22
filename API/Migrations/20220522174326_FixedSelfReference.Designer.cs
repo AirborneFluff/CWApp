@@ -8,16 +8,63 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace API.Data.Migrations
+namespace API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220416191745_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20220522174326_FixedSelfReference")]
+    partial class FixedSelfReference
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.4");
+
+            modelBuilder.Entity("API.Entities.BOM", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("BOMs");
+                });
+
+            modelBuilder.Entity("API.Entities.BOMEntry", b =>
+                {
+                    b.Property<int>("BOMId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PartId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ComponentLocation")
+                        .HasColumnType("TEXT");
+
+                    b.Property<float>("Quantity")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("BOMId", "PartId");
+
+                    b.HasIndex("PartId");
+
+                    b.ToTable("BOMEntry");
+                });
 
             modelBuilder.Entity("API.Entities.Part", b =>
                 {
@@ -28,11 +75,10 @@ namespace API.Data.Migrations
                     b.Property<string>("BufferUnit")
                         .HasColumnType("TEXT");
 
-                    b.Property<float?>("BufferValue")
+                    b.Property<float>("BufferValue")
                         .HasColumnType("REAL");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Notes")
@@ -44,7 +90,34 @@ namespace API.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PartCode")
+                        .IsUnique();
+
                     b.ToTable("Parts");
+                });
+
+            modelBuilder.Entity("API.Entities.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
+
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("API.Entities.SourcePrice", b =>
@@ -66,7 +139,7 @@ namespace API.Data.Migrations
 
                     b.HasIndex("SupplySourceId");
 
-                    b.ToTable("SourcePrice");
+                    b.ToTable("SourcePrices");
                 });
 
             modelBuilder.Entity("API.Entities.Supplier", b =>
@@ -79,10 +152,16 @@ namespace API.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Website")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
 
                     b.ToTable("Suppliers");
                 });
@@ -123,23 +202,53 @@ namespace API.Data.Migrations
 
                     b.HasIndex("SupplierId");
 
-                    b.ToTable("SupplySource");
+                    b.ToTable("SupplySources");
+                });
+
+            modelBuilder.Entity("API.Entities.BOM", b =>
+                {
+                    b.HasOne("API.Entities.Product", "Product")
+                        .WithMany("BOMs")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("API.Entities.BOMEntry", b =>
+                {
+                    b.HasOne("API.Entities.BOM", "BOM")
+                        .WithMany("Parts")
+                        .HasForeignKey("BOMId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Entities.Part", "Part")
+                        .WithMany()
+                        .HasForeignKey("PartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BOM");
+
+                    b.Navigation("Part");
                 });
 
             modelBuilder.Entity("API.Entities.SourcePrice", b =>
                 {
-                    b.HasOne("API.Entities.SupplySource", "SupplySource")
+                    b.HasOne("API.Entities.SupplySource", "Source")
                         .WithMany("Prices")
                         .HasForeignKey("SupplySourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SupplySource");
+                    b.Navigation("Source");
                 });
 
             modelBuilder.Entity("API.Entities.SupplySource", b =>
                 {
-                    b.HasOne("API.Entities.Part", "Part")
+                    b.HasOne("API.Entities.Part", null)
                         .WithMany("SupplySources")
                         .HasForeignKey("PartId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -151,14 +260,22 @@ namespace API.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Part");
-
                     b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("API.Entities.BOM", b =>
+                {
+                    b.Navigation("Parts");
                 });
 
             modelBuilder.Entity("API.Entities.Part", b =>
                 {
                     b.Navigation("SupplySources");
+                });
+
+            modelBuilder.Entity("API.Entities.Product", b =>
+                {
+                    b.Navigation("BOMs");
                 });
 
             modelBuilder.Entity("API.Entities.SupplySource", b =>

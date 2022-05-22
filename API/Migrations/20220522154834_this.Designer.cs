@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace API.Data.Migrations
+namespace API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220518190232_AddNormalizedNameToProducts")]
-    partial class AddNormalizedNameToProducts
+    [Migration("20220522154834_this")]
+    partial class @this
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -47,25 +47,19 @@ namespace API.Data.Migrations
 
             modelBuilder.Entity("API.Entities.BOMEntry", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("BOMId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("BOMId")
+                    b.Property<int>("PartId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ComponentLocation")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("PartId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<float>("Quantity")
                         .HasColumnType("REAL");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("BOMId");
+                    b.HasKey("BOMId", "PartId");
 
                     b.HasIndex("PartId");
 
@@ -112,6 +106,7 @@ namespace API.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedName")
@@ -119,25 +114,24 @@ namespace API.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
+
                     b.ToTable("Products");
                 });
 
             modelBuilder.Entity("API.Entities.SourcePrice", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
                     b.Property<float>("Quantity")
+                        .HasColumnType("REAL");
+
+                    b.Property<float>("UnitPrice")
                         .HasColumnType("REAL");
 
                     b.Property<int>("SupplySourceId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<float>("UnitPrice")
-                        .HasColumnType("REAL");
-
-                    b.HasKey("Id");
+                    b.HasKey("Quantity", "UnitPrice");
 
                     b.HasIndex("SupplySourceId");
 
@@ -239,16 +233,18 @@ namespace API.Data.Migrations
 
             modelBuilder.Entity("API.Entities.SourcePrice", b =>
                 {
-                    b.HasOne("API.Entities.SupplySource", null)
+                    b.HasOne("API.Entities.SupplySource", "Source")
                         .WithMany("Prices")
                         .HasForeignKey("SupplySourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Source");
                 });
 
             modelBuilder.Entity("API.Entities.SupplySource", b =>
                 {
-                    b.HasOne("API.Entities.Part", null)
+                    b.HasOne("API.Entities.Part", "Part")
                         .WithMany("SupplySources")
                         .HasForeignKey("PartId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -259,6 +255,8 @@ namespace API.Data.Migrations
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Part");
 
                     b.Navigation("Supplier");
                 });

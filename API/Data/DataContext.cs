@@ -16,10 +16,13 @@ namespace API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             modelBuilder.Entity<Part>().HasIndex(x => x.PartCode).IsUnique();
             modelBuilder.Entity<Supplier>().HasIndex(x => x.NormalizedName).IsUnique();
+            modelBuilder.Entity<Product>().HasIndex(x => x.NormalizedName).IsUnique();
 
+            modelBuilder.Entity<BOMEntry>()
+                .HasKey(k => new { k.BOMId, k.PartId });
         }
     }
 }
