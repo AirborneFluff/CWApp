@@ -13,13 +13,13 @@ namespace API.Controllers
             return Ok(list);
         }
 
-        [HttpGet("{productId}/boms/{title}")]
-        public async Task<ActionResult<BOM>> GetBOM(string title, int productId)
+        [HttpGet("{productId}/boms/{bomId}")]
+        public async Task<ActionResult<BOM>> GetBOM(int bomId, int productId)
         {
             var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
             if (product == null) NotFound("No product found by that id");
 
-            var partsList = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
+            var partsList = await _unitOfWork.BOMsRepository.GetBOMFromId(bomId);
             if (partsList == null) return NotFound("Couldn't find a parts list with that title");
             return Ok(partsList);
         }
@@ -47,13 +47,13 @@ namespace API.Controllers
             return BadRequest("Issue creating new parts list");
         }
 
-        [HttpDelete("{productId}/boms/{title}")]
-        public async Task<ActionResult<BOM>> RemoveBOM(string title, int productId)
+        [HttpDelete("{productId}/boms/{bomId}")]
+        public async Task<ActionResult<BOM>> RemoveBOM(int bomId, int productId)
         {
             var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
             if (product == null) NotFound("No product found by that id");
 
-            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
+            var list = await _unitOfWork.BOMsRepository.GetBOMFromId(bomId);
             if (list == null) return NotFound("Couldn't find a parts list with that title");
 
             _unitOfWork.BOMsRepository.RemoveBOM(list);
@@ -61,13 +61,13 @@ namespace API.Controllers
             return BadRequest("Issue deleting parts list");
         }
 
-        [HttpPost("{productId}/boms/{title}/parts")]
-        public async Task<ActionResult<BOM>> AddPartToList(int productId, string title, [FromBody] NewBOMEntryDto newEntry)
+        [HttpPost("{productId}/boms/{bomId}/parts")]
+        public async Task<ActionResult<BOM>> AddPartToList(int productId, int bomId, [FromBody] NewBOMEntryDto newEntry)
         {
             var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
             if (product == null) return NotFound("Couldn't find a product by that id");
 
-            var list = await _unitOfWork.BOMsRepository.GetBOMFromTitle(title);
+            var list = await _unitOfWork.BOMsRepository.GetBOMFromId(bomId);
             if (list == null) return NotFound("Couldn't find a parts list with that title");
             
             var part = await _unitOfWork.PartsRepository.GetPartByPartCode(newEntry.PartCode);

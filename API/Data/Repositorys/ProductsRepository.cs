@@ -28,7 +28,11 @@ namespace API.Data.Repositorys
 
         public async Task<Product> GetProduct(int id)
         {
-            return await _context.Products.FindAsync(id);
+            return await _context.Products
+                .Include(p => p.BOMs)
+                .ThenInclude(b => b.Parts)
+                .ThenInclude(b => b.Part)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Product> GetProductByName(string name)

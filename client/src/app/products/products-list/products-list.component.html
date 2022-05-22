@@ -1,0 +1,16 @@
+<h1>Products</h1>
+<hr>
+<div>
+    <ul *ngFor="let product of products">
+        <li>
+            <div class="d-flex gap-2 w-100 justify-content-between" routerLink="{{product.id}}">
+                <a class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+                    <div>
+                        <h6 class="mb-0">{{product.name}}</h6>
+                        <p class="mb-0 opacity-75">{{product.description}}</p>
+                    </div>
+                </a>
+            </div>
+        </li>
+    </ul>
+</div>

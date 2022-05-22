@@ -47,5 +47,14 @@ namespace API.Controllers
 
             return BadRequest("Problem removing product");
         }
+
+        [HttpGet("{productId}")]
+        public async Task<ActionResult<Product>> GetProduct(int productId)
+        {
+            var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
+            if (product == null) return NotFound("No products exists");
+
+            return Ok(product);
+        }
     }
 }

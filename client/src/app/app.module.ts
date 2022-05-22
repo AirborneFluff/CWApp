@@ -16,6 +16,9 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { NewSourceModalComponent } from './modals/new-source-modal/new-source-modal.component';
+import { ProductsListComponent } from './products/products-list/products-list.component';
+import { ProductDetailsComponent } from './products/product-details/product-details.component';
+import { BomDetailsComponent } from './products/bom-details/bom-details.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +29,9 @@ import { NewSourceModalComponent } from './modals/new-source-modal/new-source-mo
     PartBrowseComponent,
     SupplySourceComponent,
     NewSourceModalComponent,
+    ProductsListComponent,
+    ProductDetailsComponent,
+    BomDetailsComponent,
   ],
   imports: [
     BrowserModule,
