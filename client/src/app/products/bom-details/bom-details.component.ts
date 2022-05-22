@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BOM } from 'src/app/_models/bom';
@@ -10,6 +11,7 @@ import { ProductsService } from 'src/app/_services/products.service';
 })
 export class BomDetailsComponent implements OnInit {
   bom: BOM;
+  date: string;
 
   constructor(private productsService: ProductsService, private route: ActivatedRoute) { }
 
@@ -20,6 +22,7 @@ export class BomDetailsComponent implements OnInit {
   getBOMDetails() {
     this.productsService.getBom(parseInt(this.route.snapshot.paramMap.get("bomid")), parseInt(this.route.snapshot.paramMap.get("bomid"))).subscribe(response => {
       this.bom = response;
+      this.date = new DatePipe('en-GB').transform(response.dateCreated, 'M/d/yy');
     });
   }
 

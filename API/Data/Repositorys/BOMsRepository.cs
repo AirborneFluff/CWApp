@@ -25,7 +25,7 @@ namespace API.Data.Repositorys
 
         public async Task<BOM> GetBOMFromId(int BOMId)
         {
-            return await _context.BOMs.Include(l => l.Parts).FirstOrDefaultAsync(l => l.Id == BOMId);
+            return await _context.BOMs.Include(l => l.Parts).ThenInclude(p => p.Part).FirstOrDefaultAsync(l => l.Id == BOMId);
         }
 
         public async Task<BOM> GetBOMFromTitle(string title)

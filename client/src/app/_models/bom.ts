@@ -1,4 +1,4 @@
-import { Part } from "./part";
+import { BOMEntry } from "./bomEntry";
 
 export interface BOM {
     id: number;
@@ -6,5 +6,5 @@ export interface BOM {
     title: string;
     description: string;
     dateCreated: string;
-    parts: Part[];
+    parts: BOMEntry[];
 }

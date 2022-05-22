@@ -3,7 +3,7 @@ namespace API.Controllers
     public partial class ProductsController
     {
         [HttpGet("{productId}/boms")]
-        public async Task<ActionResult<BOM>> GetBOMs(int productId)
+        public async Task<ActionResult<IEnumerable<BOM>>> GetBOMs(int productId)
         {
             var product = await _unitOfWork.ProductsRepository.GetProduct(productId);
             if (product == null) NotFound("No product found by that id");

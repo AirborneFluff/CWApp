@@ -1,73 +1,33 @@
-
-<div *ngIf="bom">
-    <h1>{{bom.title}}</h1>
-    <hr>
-    <ul *ngFor="let part of bom.parts">
-
-    </ul>
-
-
-</div>
-<!--<div>
-    <div class="d-flex">
-        <div class="container">
-            <h6>Supplier:</h6>
-            
-        </div>
-        <div class="container">
-            <h6>Supplier SKU:</h6>
-            <input type="text" class="form-control" [(ngModel)]="source.supplierSKU" (change)="onSourceChange($event)">
-        </div>
-        <div class="container col-3">
-            <h6>Manufacturer SKU:</h6>
-            <input type="text" class="form-control" [(ngModel)]="source.manufacturerSKU" (change)="onSourceChange($event)">
-        </div>
-        <div class="container col-1">
-            <h6>Pack size:</h6>
-            <input type="text" class="form-control" [(ngModel)]="source.packSize" (change)="onSourceChange($event)">
-        </div>
-        <div class="container col-1">
-            <h6>MOQ:</h6>
-            <input type="text" class="form-control" [(ngModel)]="source.minimumOrderQuantity" (change)="onSourceChange($event)">
-        </div>
-        
-        <div class="form-check mb-3">
-            <label class="form-check-label">
-                <input class="form-check-input" type="checkbox" [(ngModel)]="source.roHS" (change)="onSourceChange($event)"> RoHS
-            </label>
-        </div>
-    
-        <div class="container col-1">
-            <button class="btn btn-danger" (click)="deleteSource()">Delete Source</button>
-        </div>
+<div class="row">
+    <div class="col-md-4">
+      <h2>Title</h2>
+      <p>{{bom.title}}</p>
     </div>
-    <div class="mt-2 ml-3">
-        <h6>Notes:</h6>
-        <input type="text" class="form-control" [(ngModel)]="source.notes" (change)="onSourceChange($event)">
+    <div class="col-md-4">
+      <h2>Date</h2>
+      <p>{{date}}</p>
     </div>
-    
-</div>
-<hr>
-<div class="d-flex flex-sm-row ml-3">
-    <button class="btn" (click)="editPrices()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-    </button>
-    <div *ngIf="edittingPrices" class="d-flex flex-sm-row ml-3">
-        <button  *ngFor="let price of source.prices"
-        class="btn btn-danger mx-1"
-        (click)="deletePrice(price)">{{price.priceString}}</button>
-        <span class="text-danger mt-2 mx-2">Deleting prices</span>
+    <div class="col-md-4">
+      <h2>Create By</h2>
+      <p></p>
     </div>
-    <div *ngIf="!edittingPrices" class="d-flex align-content-start flex-wrap">
-        <div *ngFor="let price of source.prices">
-            <input
-            type="text" class="form-control form-control-sm mt-1"
-            value="{{price.priceString}}" (change)="onPriceChange($event, price)">
-        </div>
-        <button class="btn" (click)="addPrice()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-        </button>
-    </div>
-</div>
+  </div>
 
--->
+<table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Quantity</th>
+        <th scope="col">Description</th>
+        <th scope="col">Part Code</th>
+        <th scope="col">Location</th>
+      </tr>
+    </thead>
+    <tbody *ngFor="let bomEntry of bom.parts">
+      <tr>
+        <td>{{bomEntry.quantity}}</td>
+        <td>{{bomEntry.part.description}}</td>
+        <td>{{bomEntry.part.partCode}}</td>
+        <td>{{bomEntry.componentLocation}}</td>
+      </tr>
+    </tbody>
+</table>
