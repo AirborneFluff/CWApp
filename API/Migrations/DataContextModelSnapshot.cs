@@ -40,7 +40,7 @@ namespace API.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BOMs");
+                    b.ToTable("BOMs", (string)null);
                 });
 
             modelBuilder.Entity("API.Entities.BOMEntry", b =>
@@ -61,7 +61,7 @@ namespace API.Migrations
 
                     b.HasIndex("PartId");
 
-                    b.ToTable("BOMEntry");
+                    b.ToTable("BOMEntry", (string)null);
                 });
 
             modelBuilder.Entity("API.Entities.Part", b =>
@@ -91,7 +91,7 @@ namespace API.Migrations
                     b.HasIndex("PartCode")
                         .IsUnique();
 
-                    b.ToTable("Parts");
+                    b.ToTable("Parts", (string)null);
                 });
 
             modelBuilder.Entity("API.Entities.Product", b =>
@@ -115,7 +115,7 @@ namespace API.Migrations
                     b.HasIndex("NormalizedName")
                         .IsUnique();
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("API.Entities.SourcePrice", b =>
@@ -137,7 +137,7 @@ namespace API.Migrations
 
                     b.HasIndex("SupplySourceId");
 
-                    b.ToTable("SourcePrices");
+                    b.ToTable("SourcePrices", (string)null);
                 });
 
             modelBuilder.Entity("API.Entities.Supplier", b =>
@@ -161,7 +161,7 @@ namespace API.Migrations
                     b.HasIndex("NormalizedName")
                         .IsUnique();
 
-                    b.ToTable("Suppliers");
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("API.Entities.SupplySource", b =>
@@ -200,7 +200,7 @@ namespace API.Migrations
 
                     b.HasIndex("SupplierId");
 
-                    b.ToTable("SupplySources");
+                    b.ToTable("SupplySources", (string)null);
                 });
 
             modelBuilder.Entity("API.Entities.BOM", b =>

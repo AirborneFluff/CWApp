@@ -9,7 +9,7 @@ namespace API.Interfaces
         void RemoveBOM(BOM BOM);
         Task<List<BOM>> GetBOMs(Product product);
         Task<List<BOM>> GetAllBOMs();
-        Task<BOM> GetBOMFromId(int BOMId);
+        Task<BOM> GetBOM(int bomId);
         Task<BOM> GetBOMFromTitle(string title);
     }
 }

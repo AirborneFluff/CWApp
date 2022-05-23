@@ -7,3 +7,9 @@ export interface BOMEntry {
     quantity: number;
     componentLocation: string;
 }
+
+export interface NewBOMEntry {
+    partId: number;
+    quantity: number;
+    componentLocation: string;
+}

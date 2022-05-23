@@ -26,4 +26,8 @@ export class BomDetailsComponent implements OnInit {
     });
   }
 
+  bomUpdate($event: any) {
+    this.bom = $event;
+  }
+
 }

@@ -23,14 +23,19 @@ namespace API.Data.Repositorys
             return _context.BOMs.Where(b => b.ProductId == product.Id).ToListAsync();
         }
 
-        public async Task<BOM> GetBOMFromId(int BOMId)
+        public async Task<BOM> GetBOM(int bomId)
         {
-            return await _context.BOMs.Include(l => l.Parts).ThenInclude(p => p.Part).FirstOrDefaultAsync(l => l.Id == BOMId);
+            return await _context.BOMs
+                .Include(b => b.Parts)
+                .ThenInclude(p => p.Part)
+                .FirstOrDefaultAsync(b => b.Id == bomId);
         }
 
         public async Task<BOM> GetBOMFromTitle(string title)
         {
-            return await _context.BOMs.Include(l => l.Parts).FirstOrDefaultAsync(x => x.Title.ToLower() == title.ToLower());
+            return await _context.BOMs
+                .Include(l => l.Parts)
+                .FirstOrDefaultAsync(x => x.Title.ToLower() == title.ToLower());
         }
 
         public void RemoveBOM(BOM BOM)

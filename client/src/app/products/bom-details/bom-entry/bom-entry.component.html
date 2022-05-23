@@ -1,0 +1,35 @@
+<table class="table table-striped table-sm mb-0">
+    <tbody *ngIf="!editting">
+        <td class="edit-icons animate col-sm-1">
+            <button class="btn p-0" (click)="editEntry()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+        </td>
+        <td class="entry-partCode col-sm-1">{{entry.part.partCode}}</td>
+        <td class="entry-quantity col-sm-1">{{entry.quantity}}</td>
+        <td class="entry-locations col-sm-1">{{entry.componentLocation}}</td>
+        <td class="entry-description col-sm-6">{{entry.part.description}}</td>
+    </tbody>
+    
+    <tbody *ngIf="editting">
+        <td class="animate col-sm-1" [ngClass]="{'edit-icons' : !editting}">
+            <button class="btn p-0 btn-cancel" (click)="cancelEdit()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-square"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+            </button>
+            <button class="btn p-0" (click)="saveEntry()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-square"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </button>
+            <button class="btn p-0 ml-3" (click)="deleteEntry()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </button>
+        </td>
+        <td class="entry-partCode col-sm-1">{{entryInput.partCode}}</td>
+        <td class="entry-quantity col-sm-1">
+            <input type="text" class="form-control" [(ngModel)]="entryInput.quantity">
+        </td>
+        <td class="entry-locations col-sm-1">
+            <input type="text" class="form-control" [(ngModel)]="entryInput.componentLocation">
+        </td>
+        <td class="entry-description col-sm-6">{{entry.part.description}}</td>
+    </tbody>
+</table>

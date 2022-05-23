@@ -19,6 +19,8 @@ import { NewSourceModalComponent } from './modals/new-source-modal/new-source-mo
 import { ProductsListComponent } from './products/products-list/products-list.component';
 import { ProductDetailsComponent } from './products/product-details/product-details.component';
 import { BomDetailsComponent } from './products/bom-details/bom-details.component';
+import { BomEntryComponent } from './products/bom-details/bom-entry/bom-entry.component';
+import { NewBomEntryComponent } from './products/bom-details/new-bom-entry/new-bom-entry.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +34,8 @@ import { BomDetailsComponent } from './products/bom-details/bom-details.componen
     ProductsListComponent,
     ProductDetailsComponent,
     BomDetailsComponent,
+    BomEntryComponent,
+    NewBomEntryComponent,
   ],
   imports: [
     BrowserModule,
