@@ -12,6 +12,8 @@ namespace API.Data
         public DbSet<SourcePrice> SourcePrices { get; set; }
         public DbSet<BOM> BOMs { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Requisition> Requisitions { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

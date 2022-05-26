@@ -8,6 +8,8 @@ namespace API.Interfaces
         ISourcePriceRepository SourcePriceRepository { get; }
         IBOMsRepository BOMsRepository { get; }
         IProductsRepository ProductsRepository { get; }
+        IRequisitionsRepository RequisitionsRepository { get; }
+        IUsersRepository UsersRepository { get; }
         Task<bool> Complete();
         bool HasChanges();
     }
