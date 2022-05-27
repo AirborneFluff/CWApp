@@ -6,6 +6,7 @@ namespace API.Interfaces
         void RemoveRequisition(Requisition requisition);
         Task<Requisition> GetRequisitionById(int id);
         Task<IEnumerable<Requisition>> GetRequisitionsForPart(int partId);
+        Task<Requisition> GetNotOrderedRequisitionForPart(int partId);
         Task<IEnumerable<Requisition>> GetRequisitionsFromDate(DateTime fromDate);
         Task<PagedList<Requisition>> GetRequisitions(PaginationParams pageParams);
     }

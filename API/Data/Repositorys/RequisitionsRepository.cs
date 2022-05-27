@@ -13,14 +13,30 @@ namespace API.Data.Repositorys
             _context.Requisitions.Add(requisition);
         }
 
+        public async Task<Requisition> GetNotOrderedRequisitionForPart(int partId)
+        {
+            return await _context.Requisitions
+                .Include(r => r.Part)
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.OutboundOrderId == null);
+        }
+
         public async Task<Requisition> GetRequisitionById(int id)
         {
-            return await _context.Requisitions.FindAsync(id);
+            return await _context.Requisitions
+                .Include(r => r.Part)
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == id);
         }
 
         public async Task<PagedList<Requisition>> GetRequisitions(PaginationParams pageParams)
         {
-            var query = _context.Requisitions.OrderBy(p => p.Date).AsQueryable().AsNoTracking();
+            var query = _context.Requisitions
+                .Include(r => r.Part)
+                .Include(r => r.User)
+                .OrderBy(p => p.Date)
+                .AsQueryable()
+                .AsNoTracking();
 
             return await PagedList<Requisition>.CreateAsync(query, x => true, pageParams.PageNumber, pageParams.PageSize);
         }

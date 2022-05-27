@@ -1,18 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace API.Entities
+namespace API.DTOs.RequisitionDTOs
 {
-    public class Requisition
+    public class NewRequisitionDto
     {
-        public int Id { get; set; }
         [Required]
         public int PartId { get; set; }
-        public Part Part { get; set; }
         public int UserId { get; set; }
-        public User User { get; set; }
-        public int? OutboundOrderId { get; set; }
-        public OutboundOrder OutboundOrder { get; set; }
-
 
         [Required]
         public float Quantity { get; set; }

@@ -8,5 +8,6 @@ namespace API.Interfaces
         void RemoveUser(User user);
         Task<User> GetUserById(int id);
         Task<User> GetUserByName(string firstName, string lastName);
+        Task<PagedList<User>> GetUsers(PaginationParams pageParams);
     }
 }

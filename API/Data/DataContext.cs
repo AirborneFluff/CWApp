@@ -25,6 +25,11 @@ namespace API.Data
 
             modelBuilder.Entity<BOMEntry>()
                 .HasKey(k => new { k.BOMId, k.PartId });
+
+            modelBuilder.Entity<OutboundOrderItem>()
+                .HasOne(o => o.Part)
+                .WithMany(p => p.Orders)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

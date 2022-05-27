@@ -25,6 +25,13 @@ namespace API.Data.Repositorys
                 u.LastName.ToUpper() == lastName.ToUpper());
         }
 
+        public async Task<PagedList<User>> GetUsers(PaginationParams pageParams)
+        {
+            var query = _context.Users.OrderBy(u => u.LastName).AsQueryable();
+
+            return await PagedList<User>.CreateAsync(query, x => true, pageParams.PageNumber, pageParams.PageSize);
+        }
+
         public void RemoveUser(User user)
         {
             _context.Users.Remove(user);

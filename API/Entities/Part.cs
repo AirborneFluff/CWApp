@@ -16,5 +16,8 @@ namespace API.Entities
         public ICollection<SupplySource> SupplySources { get; set; }
 
         public string Buffer { get { return $"{BufferValue} {BufferUnit}"; } }
+
+
+        public ICollection<OutboundOrderItem> Orders { get; set; }
     }
 }
