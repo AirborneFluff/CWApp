@@ -18,7 +18,7 @@ namespace API.Data.Repositorys
             return await _context.Requisitions
                 .Include(r => r.Part)
                 .Include(r => r.User)
-                .FirstOrDefaultAsync(r => r.OutboundOrderId == null);
+                .FirstOrDefaultAsync(r => r.OutboundOrderId == null && r.PartId == partId);
         }
 
         public async Task<Requisition> GetRequisitionById(int id)

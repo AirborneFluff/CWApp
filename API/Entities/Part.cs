@@ -19,5 +19,6 @@ namespace API.Entities
 
 
         public ICollection<OutboundOrderItem> Orders { get; set; }
+        public ICollection<Requisition> Requisitions { get; set; }
     }
 }

@@ -28,10 +28,11 @@ namespace API.Controllers
             return Ok(parts);
         }
 
-        [HttpGet("all")]
-        public async Task<ActionResult<IEnumerable<PartDto>>> GetAllParts()
+        [HttpGet("partcodes")]
+        public async Task<ActionResult<IEnumerable<string>>> GetAllPartcodes()
         {
-            var parts = await _unitOfWork.PartsRepository.GetAllParts();
+            var parts = await _unitOfWork.PartsRepository.GetAllPartCodes();
+            if (parts == null) return NotFound("No parts found...");
             return Ok(parts);
         }
 

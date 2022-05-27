@@ -36,6 +36,7 @@ namespace API.Data.Repositorys
                 .ThenInclude(s => s.Supplier)
                 .Include(p => p.SupplySources)
                 .ThenInclude(s => s.Prices)
+                .Include(p => p.Requisitions)
                 .FirstOrDefaultAsync(p => p.PartCode == partCode);
         }
 
@@ -45,11 +46,6 @@ namespace API.Data.Repositorys
             var _query = query.ProjectTo<PartDto>(_mapper.ConfigurationProvider).AsNoTracking();
 
             return await PagedList<PartDto>.CreateAsync(_query, predicate, partParams.PageNumber, partParams.PageSize);
-        }
-
-        public async Task<List<string>> GetAllPartCodes()
-        {
-            return await _context.Parts.Select(p => p.PartCode).ToListAsync();
         }
 
         public void RemovePart(Part part)
@@ -69,16 +65,14 @@ namespace API.Data.Repositorys
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<PartDto>> GetAllParts()
-        {
-            return await _context.Parts
-                .ProjectTo<PartDto>(_mapper.ConfigurationProvider)
-                .ToListAsync();
-        }
-
         public async Task<List<Part>> GetAllPartsAsList()
         {
             return await _context.Parts.ToListAsync();
+        }
+
+        public async Task<List<string>> GetAllPartCodes()
+        {
+            return await _context.Parts.Select(p => p.PartCode).ToListAsync();
         }
     }
 }

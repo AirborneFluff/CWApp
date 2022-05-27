@@ -2,11 +2,11 @@ using API.DTOs.RequisitionDTOs;
 
 namespace API.Controllers
 {
-    public class RequistionsController : BaseApiController
+    public class RequisitionsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public RequistionsController(IUnitOfWork unitOfWork, IMapper mapper)
+        public RequisitionsController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             this._mapper = mapper;
             this._unitOfWork = unitOfWork;

@@ -1,3 +1,4 @@
+import { Requisition } from "./requisiton";
 import { Supplier } from "./supplier";
 
 export interface Part {
@@ -9,6 +10,7 @@ export interface Part {
     bufferUnit: string;
     buffer: string,
     supplySources: SupplySource[]
+    requisitions: Requisition[];
 }
 
 export interface SupplySource {

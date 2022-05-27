@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace API.Entities
 {
@@ -7,6 +8,7 @@ namespace API.Entities
         public int Id { get; set; }
         [Required]
         public int PartId { get; set; }
+        [JsonIgnore]
         public Part Part { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }

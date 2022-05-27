@@ -21,6 +21,7 @@ import { ProductDetailsComponent } from './products/product-details/product-deta
 import { BomDetailsComponent } from './products/bom-details/bom-details.component';
 import { BomEntryComponent } from './products/bom-details/bom-entry/bom-entry.component';
 import { NewBomEntryComponent } from './products/bom-details/new-bom-entry/new-bom-entry.component';
+import { RequisitionsComponent } from './requisitions/requisitions.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { NewBomEntryComponent } from './products/bom-details/new-bom-entry/new-b
     BomDetailsComponent,
     BomEntryComponent,
     NewBomEntryComponent,
+    RequisitionsComponent,
   ],
   imports: [
     BrowserModule,

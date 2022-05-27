@@ -13,15 +13,18 @@ import { getPaginatedResult, getPaginationHeaders } from './pagination-helper.se
 export class PartsService {
   baseUrl = environment.baseUrl;
   parts: Part[] = [];
+  partCodes: string[] = [];
 
   constructor(private http: HttpClient) {}
 
-  getParts() {
-    return this.http.get<Part[]>(this.baseUrl + "parts");
-  }
-
   getPart(partCode: string) {
     return this.http.get<Part>(this.baseUrl + "parts/" + partCode);
+  }
+
+  getAllPartcodes() {
+    return this.http.get<string[]>(this.baseUrl + "parts/partcodes").pipe(map(result => {
+      this.partCodes = result;
+    }));
   }
 
   getPaginatedParts(partParams: PartParams) {
