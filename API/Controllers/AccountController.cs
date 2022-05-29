@@ -1,4 +1,5 @@
 using API.DTOs.UserDTOs;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
 
 namespace API.Controllers
@@ -33,11 +34,19 @@ namespace API.Controllers
 
             if (!result.Succeeded) return Unauthorized("No account found with this username/password combination");
 
-            return new UserDto
-            {
-                UserName = user.UserName,
-                Token = await _tokenService.CreateToken(user),
-            };
+            return _mapper.Map<UserDto>(user);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetUsers()
+        {
+            var users = await _userManager.Users
+                .ProjectTo<NewUserDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            if (users == null) return NotFound("No users currently exist");
+
+            return Ok(users);
         }
 
         /*

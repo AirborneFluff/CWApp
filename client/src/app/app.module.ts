@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'
 
 import { AppRoutingModule } from './app-routing.module';
@@ -22,6 +22,8 @@ import { BomDetailsComponent } from './products/bom-details/bom-details.componen
 import { BomEntryComponent } from './products/bom-details/bom-entry/bom-entry.component';
 import { NewBomEntryComponent } from './products/bom-details/new-bom-entry/new-bom-entry.component';
 import { RequisitionsComponent } from './requisitions/requisitions.component';
+import { LoginModalComponent } from './modals/login-modal/login-modal.component';
+import { JwtInterceptor } from './_interceptors/jwt.interceptor';
 
 @NgModule({
   declarations: [
@@ -38,6 +40,7 @@ import { RequisitionsComponent } from './requisitions/requisitions.component';
     BomEntryComponent,
     NewBomEntryComponent,
     RequisitionsComponent,
+    LoginModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -50,7 +53,13 @@ import { RequisitionsComponent } from './requisitions/requisitions.component';
     TypeaheadModule.forRoot(),
     ModalModule.forRoot(),
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

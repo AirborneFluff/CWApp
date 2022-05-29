@@ -2,6 +2,7 @@ import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { PageParams } from '../_models/pageParams';
 import { Part } from '../_models/part';
 import { Requisition } from '../_models/requisiton';
+import { AccountService } from '../_services/account.service';
 import { PartsService } from '../_services/parts.service';
 import { RequisitionsService } from '../_services/requisitions.service';
 
@@ -51,7 +52,7 @@ export class RequisitionsComponent implements OnInit {
     return this._quantReq
   }
 
-  constructor(private partService: PartsService, private requisitionService: RequisitionsService) { }
+  constructor(private partService: PartsService, private requisitionService: RequisitionsService, private accountService: AccountService) { }
 
   ngOnInit(): void {
     this.partService.getAllPartcodes().subscribe(() => {
@@ -102,6 +103,9 @@ export class RequisitionsComponent implements OnInit {
     };
 
     if (urgent) req.urgent = true;
+    this.accountService.currentUser$.subscribe(user => {
+      req.userId = user.userId
+    })
 
     this.requisitionService.sendRequisition(req).subscribe(response => {
       this.requisitions.push(response as Requisition);

@@ -1,0 +1,5 @@
+<div *ngIf="users" class="d-flex flex-wrap justify-content-around">
+    <button  *ngFor="let user of users"
+        class="btn btn-light"
+        (click)="login(user)">{{user.firstName}}</button>
+</div>
