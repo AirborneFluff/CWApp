@@ -1,3 +1,4 @@
+using API.Data;
 using API.Extensions;
 using Microsoft.AspNetCore.Identity;
 
@@ -55,7 +56,10 @@ try
 {
     var context = service.GetRequiredService<DataContext>();
     var unitOfWork = service.GetRequiredService<IUnitOfWork>();
+    var userManager = service.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = service.GetRequiredService<RoleManager<AppRole>>();
     await context.Database.MigrateAsync();
+    await UserSeed.SeedUsers(userManager, roleManager);
 }
 catch (Exception ex)
 {
