@@ -2,9 +2,11 @@ using System.Reflection.Metadata.Ecma335;
 using API.DTOs.ProductsDTOs;
 using API.Entities;
 using API.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
+    [Authorize]
     public partial class ProductsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;

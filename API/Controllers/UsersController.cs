@@ -1,7 +1,9 @@
 using API.DTOs.UserDTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
+    [Authorize]
     public class UsersController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;

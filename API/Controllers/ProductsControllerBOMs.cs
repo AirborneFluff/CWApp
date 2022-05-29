@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
+
 namespace API.Controllers
 {
     public partial class ProductsController
     {
+        [Authorize]
         [HttpGet("{productId}/boms")]
         public async Task<ActionResult<IEnumerable<BOM>>> GetBOMs(int productId)
         {

@@ -1,7 +1,9 @@
 using API.DTOs.RequisitionDTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
+    [Authorize]
     public class RequisitionsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;

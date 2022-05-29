@@ -1,11 +1,16 @@
+using System.Text;
 using API.Data;
 using API.Extensions;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Development.json");
 
 // Add services to the container.
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddControllers();
 builder.Services.AddCors();
 
@@ -24,7 +29,39 @@ builder.Services.AddIdentityCore<AppUser>(opt =>
                 .AddRoleValidator<RoleValidator<AppRole>>()
                 .AddEntityFrameworkStores<DataContext>();
 
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey"])),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                                context.Token = accessToken;
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
+
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("CreateRequests", policy => policy.RequireRole("CreateRequests"));
+    opt.AddPolicy("CreateOutboundOrders", policy => policy.RequireRole("CreateOutboundOrders"));
+    opt.AddPolicy("ModifyParts", policy => policy.RequireRole("ModifyParts"));
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.AddApplicationsServices();
@@ -44,6 +81,8 @@ app.UseCors(x => x.AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()
     .WithOrigins("https://localhost:4200"));
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

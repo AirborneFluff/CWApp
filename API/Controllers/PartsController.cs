@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Security.Claims;
 using API.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
+    [Authorize]
     public class PartsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;

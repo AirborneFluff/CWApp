@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
+
 namespace API.Controllers
 {
+    [Authorize]
     public class SuppliersController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
