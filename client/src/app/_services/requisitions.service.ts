@@ -22,5 +22,9 @@ export class RequisitionsService {
     }))
   }
 
+  sendRequisition(requisition: Requisition) {
+    return this.http.post(this.baseUrl + "requisitions", requisition);
+  }
+
 
 }

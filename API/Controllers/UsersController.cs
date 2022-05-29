@@ -11,7 +11,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers([FromQuery] PaginationParams pageParams)
+        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers([FromQuery] PaginationParams pageParams)
         {
             var users = await _unitOfWork.UsersRepository.GetUsers(pageParams);
             if (users?.Count() > 0) return Ok(users);
@@ -21,7 +21,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult> AddUser([FromBody] NewUserDto newUser)
         {
-            var user = new User
+            var user = new AppUser
             {
                 FirstName = newUser.FirstName,
                 LastName = newUser.LastName

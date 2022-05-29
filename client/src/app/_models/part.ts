@@ -7,7 +7,7 @@ export interface Part {
     description: string,
     notes: string,
     bufferValue: number,
-    bufferUnit: string;
+    stockUnits: string;
     buffer: string,
     supplySources: SupplySource[]
     requisitions: Requisition[];

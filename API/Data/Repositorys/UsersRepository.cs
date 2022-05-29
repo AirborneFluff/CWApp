@@ -8,31 +8,31 @@ namespace API.Data.Repositorys
             this._context = context;
         }
 
-        public void AddNewUser(User user)
+        public void AddNewUser(AppUser user)
         {
             _context.Users.Add(user);
         }
 
-        public async Task<User> GetUserById(int id)
+        public async Task<AppUser> GetUserById(int id)
         {
             return await _context.Users.FindAsync(id);
         }
 
-        public async Task<User> GetUserByName(string firstName, string lastName)
+        public async Task<AppUser> GetUserByName(string firstName, string lastName)
         {
             return await _context.Users.FirstOrDefaultAsync(u =>
                 u.FirstName.ToUpper() == firstName.ToUpper() &&
                 u.LastName.ToUpper() == lastName.ToUpper());
         }
 
-        public async Task<PagedList<User>> GetUsers(PaginationParams pageParams)
+        public async Task<PagedList<AppUser>> GetUsers(PaginationParams pageParams)
         {
             var query = _context.Users.OrderBy(u => u.LastName).AsQueryable();
 
-            return await PagedList<User>.CreateAsync(query, x => true, pageParams.PageNumber, pageParams.PageSize);
+            return await PagedList<AppUser>.CreateAsync(query, x => true, pageParams.PageNumber, pageParams.PageSize);
         }
 
-        public void RemoveUser(User user)
+        public void RemoveUser(AppUser user)
         {
             _context.Users.Remove(user);
         }

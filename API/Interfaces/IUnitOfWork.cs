@@ -10,6 +10,7 @@ namespace API.Interfaces
         IProductsRepository ProductsRepository { get; }
         IRequisitionsRepository RequisitionsRepository { get; }
         IUsersRepository UsersRepository { get; }
+        IStockLevelsRepository StockRepository { get; }
         Task<bool> Complete();
         bool HasChanges();
     }

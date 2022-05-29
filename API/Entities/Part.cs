@@ -12,13 +12,12 @@ namespace API.Entities
         public string Description { get; set; }
         public string Notes { get; set; }
         public float BufferValue { get; set; }
-        public string BufferUnit { get; set; }
+        public string StockUnits { get; set; }
         public ICollection<SupplySource> SupplySources { get; set; }
 
-        public string Buffer { get { return $"{BufferValue} {BufferUnit}"; } }
+        public string Buffer { get { return $"{BufferValue} {StockUnits}"; } }
 
 
         public ICollection<OutboundOrderItem> Orders { get; set; }
-        public ICollection<Requisition> Requisitions { get; set; }
     }
 }

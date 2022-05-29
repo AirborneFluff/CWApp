@@ -9,7 +9,18 @@ input[type=checkbox]
 }
 
 label {
-    
   font-weight: 500;
   color: #333;
+}
+
+.quantity-input {
+  position: relative;
+  float: left;
+}
+
+.quantity-input:after {
+  position: absolute;
+  right: 10px;
+  top: 12px;
+  content: attr(data-placeholder)
 }

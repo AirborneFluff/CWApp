@@ -4,7 +4,6 @@ export interface Requisition {
     userId: number;
     outboundOrderId: number;
     quantity: number;
-    quantityUnits: string;
     stockRemaining: number;
     forBuffer: boolean;
     urgent: boolean;

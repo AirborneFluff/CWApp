@@ -1,10 +1,15 @@
+using API.DTOs.RequisitionDTOs;
+using AutoMapper.QueryableExtensions;
+
 namespace API.Data.Repositorys
 {
     public class RequisitionsRepository : IRequisitionsRepository
     {
         private readonly DataContext _context;
-        public RequisitionsRepository(DataContext context)
+        private readonly IMapper _mapper;
+        public RequisitionsRepository(DataContext context, IMapper mapper)
         {
+            this._mapper = mapper;
             this._context = context;
         }
 
@@ -13,37 +18,45 @@ namespace API.Data.Repositorys
             _context.Requisitions.Add(requisition);
         }
 
-        public async Task<Requisition> GetNotOrderedRequisitionForPart(int partId)
+        public async Task<RequisitionDetailsDto> GetNotOrderedRequisitionForPart(int partId)
         {
             return await _context.Requisitions
                 .Include(r => r.Part)
                 .Include(r => r.User)
-                .FirstOrDefaultAsync(r => r.OutboundOrderId == null && r.PartId == partId);
+                .Where(r => r.OutboundOrderId == null && r.PartId == partId)
+                .ProjectTo<RequisitionDetailsDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<Requisition> GetRequisitionById(int id)
+        public async Task<RequisitionDetailsDto> GetRequisitionById(int id)
         {
             return await _context.Requisitions
                 .Include(r => r.Part)
                 .Include(r => r.User)
+                .Include(r => r.OutboundOrder)
+                .ProjectTo<RequisitionDetailsDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 
-        public async Task<PagedList<Requisition>> GetRequisitions(PaginationParams pageParams)
+        public async Task<PagedList<RequisitionDetailsDto>> GetRequisitions(PaginationParams pageParams)
         {
             var query = _context.Requisitions
                 .Include(r => r.Part)
                 .Include(r => r.User)
                 .OrderBy(p => p.Date)
+                .ProjectTo<RequisitionDetailsDto>(_mapper.ConfigurationProvider)
                 .AsQueryable()
                 .AsNoTracking();
 
-            return await PagedList<Requisition>.CreateAsync(query, x => true, pageParams.PageNumber, pageParams.PageSize);
+            return await PagedList<RequisitionDetailsDto>.CreateAsync(query, x => true, pageParams.PageNumber, pageParams.PageSize);
         }
 
-        public async Task<IEnumerable<Requisition>> GetRequisitionsForPart(int partId)
+        public async Task<IEnumerable<RequisitionDetailsDto>> GetRequisitionsForPart(int partId)
         {
-            return await _context.Requisitions.Where(r => r.PartId == partId).ToListAsync();
+            return await _context.Requisitions
+                .Where(r => r.PartId == partId)
+                .ProjectTo<RequisitionDetailsDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Requisition>> GetRequisitionsFromDate(DateTime fromDate)

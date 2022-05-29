@@ -24,14 +24,45 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateRequisiton([FromBody] NewRequisitionDto reqDto)
         {
-            var req = await _unitOfWork.RequisitionsRepository.GetNotOrderedRequisitionForPart(reqDto.PartId);
-            if (req != null) return Conflict($"A requistion has already been made for {req.Part?.PartCode}. Try using a PUT request to ammend");
+            var oldReq = await _unitOfWork.RequisitionsRepository.GetNotOrderedRequisitionForPart(reqDto.PartId);
+            if (oldReq != null) return Conflict($"A requistion has already been made for {oldReq.Part?.PartCode}. Try using a PUT request to ammend");
 
-            req = _mapper.Map<Requisition>(reqDto);
-            _unitOfWork.RequisitionsRepository.AddNewRequisition(req);
+            var newReq = _mapper.Map<Requisition>(reqDto);
 
-            if(await _unitOfWork.Complete()) return Ok(req);
+            var part = await _unitOfWork.PartsRepository.GetPartById(reqDto.PartId);
+            if (part == null) return BadRequest("Part doesn't exist");
+
+            var user = await _unitOfWork.UsersRepository.GetUserById(reqDto.UserId);
+            if (user == null) return BadRequest("User doesn't exist");
+
+            if (newReq.ForBuffer)
+            {
+                if (part.BufferValue <= 0) return BadRequest("Part doesn't have a buffer value");
+
+                newReq.Quantity = part.BufferValue - newReq.StockRemaining;
+            }
+
+            if (newReq.StockRemaining > 0)
+                _unitOfWork.StockRepository.AddStockEntry(new StockLevelEntry
+                {
+                    PartId = part.Id,
+                    UserId = user.Id,
+                    RemainingStock = newReq.StockRemaining
+                });
+
+            _unitOfWork.RequisitionsRepository.AddNewRequisition(newReq);
+
+            if(await _unitOfWork.Complete()) return Ok(newReq);
             return BadRequest("Issue adding requisition");
+        }
+
+        [HttpGet("{reqId}")]
+        public async Task<ActionResult<IEnumerable<RequisitionDetailsDto>>> GetRequisition(int reqId)
+        {
+            var req = await _unitOfWork.RequisitionsRepository.GetRequisitionById(reqId);
+            if (req == null) return NotFound("Couldn't find a requisition by that Id");
+
+            return Ok(req);
         }
     }
 }

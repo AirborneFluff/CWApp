@@ -1,14 +1,15 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.Entities
 {
-    public class User
+    public class AppUser : IdentityUser<int>
     {
-        public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
         [NotMapped]
         public string Initials { get => $"{FirstName.First()}{LastName.First()}"; }
+        public ICollection<AppUserRole> UserRoles { get; set; }
     }
 }

@@ -36,7 +36,6 @@ namespace API.Data.Repositorys
                 .ThenInclude(s => s.Supplier)
                 .Include(p => p.SupplySources)
                 .ThenInclude(s => s.Prices)
-                .Include(p => p.Requisitions)
                 .FirstOrDefaultAsync(p => p.PartCode == partCode);
         }
 

@@ -4,6 +4,7 @@ namespace API.Entities
     {
         public int Id { get; set; }
         public int SupplierId { get; set; }
+        public Supplier Supplier { get; set; }
 
         public int OrderNumber { get; set; }
         public string SupplierReference { get; set; }
