@@ -34,7 +34,10 @@ namespace API.Controllers
 
             if (!result.Succeeded) return Unauthorized("No account found with this username/password combination");
 
-            return _mapper.Map<UserDto>(user);
+            var userResult = _mapper.Map<UserDto>(user);
+            userResult.Token = await _tokenService.CreateToken(user);
+
+            return userResult;
         }
 
         [HttpGet]

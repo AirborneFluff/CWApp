@@ -34,8 +34,8 @@ namespace API.Controllers
             var part = await _unitOfWork.PartsRepository.GetPartById(reqDto.PartId);
             if (part == null) return BadRequest("Part doesn't exist");
 
-            var user = await _unitOfWork.UsersRepository.GetUserById(reqDto.UserId);
-            if (user == null) return BadRequest("User doesn't exist");
+            var userId = User.GetUserId();
+            newReq.UserId = userId;
 
             if (newReq.ForBuffer)
             {
@@ -48,7 +48,7 @@ namespace API.Controllers
                 _unitOfWork.StockRepository.AddStockEntry(new StockLevelEntry
                 {
                     PartId = part.Id,
-                    UserId = user.Id,
+                    UserId = userId,
                     RemainingStock = newReq.StockRemaining
                 });
 

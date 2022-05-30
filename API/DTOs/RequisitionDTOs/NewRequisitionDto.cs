@@ -6,7 +6,6 @@ namespace API.DTOs.RequisitionDTOs
     {
         [Required]
         public int PartId { get; set; }
-        public int UserId { get; set; }
 
         [Required]
         public float Quantity { get; set; }

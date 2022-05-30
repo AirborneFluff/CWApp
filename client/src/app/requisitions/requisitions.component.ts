@@ -93,7 +93,7 @@ export class RequisitionsComponent implements OnInit {
     let req: Requisition = {
       id: undefined,
       partId: this.req_partId,
-      userId: 1,
+      userId: undefined,
       outboundOrderId: undefined,
       quantity: this.req_quantityRequired,
       stockRemaining: this.req_quantityRemaining,
@@ -103,9 +103,6 @@ export class RequisitionsComponent implements OnInit {
     };
 
     if (urgent) req.urgent = true;
-    this.accountService.currentUser$.subscribe(user => {
-      req.userId = user.userId
-    })
 
     this.requisitionService.sendRequisition(req).subscribe(response => {
       this.requisitions.push(response as Requisition);
@@ -118,7 +115,6 @@ export class RequisitionsComponent implements OnInit {
     params.pageSize = 50;
     this.requisitionService.getPaginatedRequisitions(params).subscribe(response => {
       this.requisitions = response.result;
-      console.log(this.requisitions)
     })
   }
 }
