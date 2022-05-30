@@ -29,6 +29,7 @@ namespace API.DTOs.RequisitionDTOs
 
         public int OrderNumber { get; set; }
     }
+
     public class Requisition_UserDto
     {
         public string Initials { get; set; }

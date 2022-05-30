@@ -18,23 +18,21 @@ namespace API.Data.Repositorys
             _context.Requisitions.Add(requisition);
         }
 
-        public async Task<RequisitionDetailsDto> GetNotOrderedRequisitionForPart(int partId)
+        public async Task<Requisition> GetNotOrderedRequisitionForPart(int partId)
         {
             return await _context.Requisitions
                 .Include(r => r.Part)
                 .Include(r => r.User)
                 .Where(r => r.OutboundOrderId == null && r.PartId == partId)
-                .ProjectTo<RequisitionDetailsDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<RequisitionDetailsDto> GetRequisitionById(int id)
+        public async Task<Requisition> GetRequisitionById(int id)
         {
             return await _context.Requisitions
                 .Include(r => r.Part)
                 .Include(r => r.User)
                 .Include(r => r.OutboundOrder)
-                .ProjectTo<RequisitionDetailsDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 
@@ -43,7 +41,8 @@ namespace API.Data.Repositorys
             var query = _context.Requisitions
                 .Include(r => r.Part)
                 .Include(r => r.User)
-                .OrderBy(p => p.Date)
+                .Where(r => r.OutboundOrderId == null)
+                .OrderByDescending(p => p.Date)
                 .ProjectTo<RequisitionDetailsDto>(_mapper.ConfigurationProvider)
                 .AsQueryable()
                 .AsNoTracking();

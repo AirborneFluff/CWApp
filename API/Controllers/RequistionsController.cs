@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class RequisitionsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -35,27 +35,60 @@ namespace API.Controllers
             if (part == null) return BadRequest("Part doesn't exist");
 
             var userId = User.GetUserId();
+            var user = await _unitOfWork.UsersRepository.GetUserById(userId);
             newReq.UserId = userId;
 
             if (newReq.ForBuffer)
             {
                 if (part.BufferValue <= 0) return BadRequest("Part doesn't have a buffer value");
+                if (reqDto.StockRemaining == null) return BadRequest("For buffered items you must provide a remaining stock value");
 
-                newReq.Quantity = part.BufferValue - newReq.StockRemaining;
+                newReq.Quantity = part.BufferValue - (float)reqDto.StockRemaining;
             }
 
-            if (newReq.StockRemaining > 0)
+            if (reqDto.StockRemaining != null)
                 _unitOfWork.StockRepository.AddStockEntry(new StockLevelEntry
                 {
                     PartId = part.Id,
                     UserId = userId,
-                    RemainingStock = newReq.StockRemaining
+                    RemainingStock = (float)reqDto.StockRemaining
                 });
 
             _unitOfWork.RequisitionsRepository.AddNewRequisition(newReq);
 
-            if(await _unitOfWork.Complete()) return Ok(newReq);
+            if(await _unitOfWork.Complete()) return Ok(_mapper.Map<RequisitionDetailsDto>(newReq));
             return BadRequest("Issue adding requisition");
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateRequisition([FromBody] NewRequisitionDto reqDto)
+        {
+            var oldReq = await _unitOfWork.RequisitionsRepository.GetNotOrderedRequisitionForPart(reqDto.PartId);
+            if(oldReq != null) return NotFound("Cannot replace a none existant requisition");
+            
+            // Update urgency
+            if (reqDto.Urgent) oldReq.Urgent = true;
+            oldReq.Quantity = reqDto.Quantity;
+
+            // Update user
+            var user = await _unitOfWork.UsersRepository.GetUserById(User.GetUserId());
+            oldReq.User = user;
+
+            // Add new stock entry
+            if (reqDto.StockRemaining != null)
+                _unitOfWork.StockRepository.AddStockEntry(new StockLevelEntry
+                {
+                    PartId = oldReq.PartId,
+                    UserId = user.Id,
+                    RemainingStock = (float)reqDto.StockRemaining
+                });
+
+            // Update quantity
+            oldReq.Quantity = reqDto.Quantity;
+
+
+            if(await _unitOfWork.Complete()) return Ok(_mapper.Map<RequisitionDetailsDto>(oldReq));
+            return BadRequest("Issue updating requisition");
         }
 
         [HttpGet("{reqId}")]

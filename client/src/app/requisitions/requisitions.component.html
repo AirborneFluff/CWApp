@@ -10,10 +10,16 @@
                 (typeaheadOnSelect)="onPartcodeChanged($event)"
                 (change)="onPartcodeChanged($event)"
                 class="form-control"
-                [ngClass]="req_partCodeValid? '' : 'is-invalid'"
+                [ngClass]="{'is-invalid': !req_partCodeValid || req_partAlreadyOrdered}"
                 placeholder="Partcode"
                 name="partCode">
-                <p *ngIf="req_partAlreadyOrdered">Part has already been requested</p>
+                
+                <div *ngIf="req_partAlreadyOrdered" class="invalid-feedback">
+                    Part has already been requested
+                </div>
+                <div *ngIf="!req_partCodeValid" class="invalid-feedback">
+                    Invalid Partcode
+                </div>
               </div>
             </div>
             <!-- Description -->
@@ -45,22 +51,34 @@
                 </div>
             </div>
             <div class="d-flex justify-content-center bd-highlight mb-3">
-                <button type="button" class="btn btn-success mx-2" (click)="sendRequest(false)">Request</button>
-                <button type="button" class="btn btn-warning mx-2" (click)="sendRequest(true)">Request Urgent</button>
+                <button [disabled]="!req_partCodeValid || req_partAlreadyOrdered" type="button" class="btn btn-success mx-2" (click)="sendRequest(false)">Request</button>
+                <button [disabled]="!req_partCodeValid || req_partAlreadyOrdered" type="button" class="btn btn-warning mx-2" (click)="sendRequest(true)">Request Urgent</button>
+                <button *ngIf="req_partAlreadyOrdered" [disabled]="!req_partCodeValid" type="button" class="btn btn-info mx-2" (click)="updateRequest()">Update Request</button>
             </div>
           </form>
     </div>
     <div class="container" *ngIf="requisitions">
-        <table class="table table-striped table-sm">
+        <table class="table table-sm">
             <thead>
               <tr>
-                <th scope="col" class="col-sm-1">Edit</th>
-                <th scope="col" class="col-sm-1">Part Code</th>
+                <th scope="col" class="col-sm-2">Part Code</th>
                 <th scope="col" class="col-sm-1">Quantity</th>
-                <th scope="col" class="col-sm-1">Location</th>
-                <th scope="col" class="col-sm-6">Description</th>
+                <th scope="col" class="col-sm-4">Description</th>
+                <th scope="col" class="col-sm-1">Initials</th>
+                <th scope="col" class="col-sm-1">Date</th>
               </tr>
             </thead>
+            <tbody>
+                <ng-container *ngFor="let req of requisitions">
+                    <tr [ngClass]="req.urgent === true ? 'req-urgent' : ''">
+                        <td>{{req.part.partCode}}</td>
+                        <td>{{req.quantity}} {{req.part.stockUnits}}</td>
+                        <td>{{req.part.description}}</td>
+                        <td>{{req.user.initials}}</td>
+                        <td>{{req.date | date:'shortDate'}}</td>
+                    </tr>
+                </ng-container>
+            </tbody>
         </table>
     </div>
 </div>

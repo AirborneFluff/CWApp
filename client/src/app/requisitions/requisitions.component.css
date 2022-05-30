@@ -24,3 +24,25 @@ label {
   top: 12px;
   content: attr(data-placeholder)
 }
+
+.req-urgent {
+  border-left: 5px solid #ff1a1a;
+}
+
+tbody tr:hover {
+  background: #cacaca;
+  cursor: pointer;
+}
+
+tbody td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+ }
+
+ .bad-text {
+  width: 100%;
+  margin-top: .25rem;
+  font-size: .875em;
+  color: #dc3545;
+}

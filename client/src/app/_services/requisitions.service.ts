@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { PageParams } from '../_models/pageParams';
-import { Requisition } from '../_models/requisiton';
+import { CreateRequisition, Requisition } from '../_models/requisiton';
 import { getPaginatedResult, getPaginationHeaders } from './pagination-helper.service';
 
 @Injectable({
@@ -22,8 +22,12 @@ export class RequisitionsService {
     }))
   }
 
-  sendRequisition(requisition: Requisition) {
+  sendRequisition(requisition: CreateRequisition) {
     return this.http.post(this.baseUrl + "requisitions", requisition);
+  }
+
+  updateRequisition(requisition: CreateRequisition) {
+    return this.http.put(this.baseUrl + "requisitions", requisition);
   }
 
 

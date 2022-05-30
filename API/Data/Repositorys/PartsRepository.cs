@@ -31,12 +31,17 @@ namespace API.Data.Repositorys
 
         public async Task<Part> GetPartByPartCode(string partCode)
         {
-            return await _context.Parts
+            var part = _context.Parts
                 .Include(p => p.SupplySources)
                 .ThenInclude(s => s.Supplier)
                 .Include(p => p.SupplySources)
                 .ThenInclude(s => s.Prices)
+                .Include(p => p.Requisitions)
                 .FirstOrDefaultAsync(p => p.PartCode == partCode);
+
+            part.Result.Requisitions = part.Result.Requisitions.OrderByDescending(r => r.Id).ToList();
+            return await part;
+
         }
 
         public async Task<PagedList<PartDto>> GetParts(PaginationParams partParams, Func<PartDto, bool> predicate)

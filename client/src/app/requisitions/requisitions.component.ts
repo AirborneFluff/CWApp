@@ -1,7 +1,7 @@
 import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { PageParams } from '../_models/pageParams';
 import { Part } from '../_models/part';
-import { Requisition } from '../_models/requisiton';
+import { CreateRequisition, Requisition } from '../_models/requisiton';
 import { AccountService } from '../_services/account.service';
 import { PartsService } from '../_services/parts.service';
 import { RequisitionsService } from '../_services/requisitions.service';
@@ -78,7 +78,7 @@ export class RequisitionsComponent implements OnInit {
         if (x.bufferValue > 0) this.req_forBuffer = true;
         else this.req_forBuffer = false;
 
-        if (x.requisitions?.length > 0) this.req_partAlreadyOrdered = true;
+        if (x.requisitions?.length > 0) this.showOldRequestDetails(x.requisitions[0])
         else this.req_partAlreadyOrdered = false;
       })
     } else {
@@ -90,11 +90,8 @@ export class RequisitionsComponent implements OnInit {
   }
 
   sendRequest(urgent: boolean) {
-    let req: Requisition = {
-      id: undefined,
+    let req: CreateRequisition = {
       partId: this.req_partId,
-      userId: undefined,
-      outboundOrderId: undefined,
       quantity: this.req_quantityRequired,
       stockRemaining: this.req_quantityRemaining,
       forBuffer: this.req_forBuffer,
@@ -105,7 +102,7 @@ export class RequisitionsComponent implements OnInit {
     if (urgent) req.urgent = true;
 
     this.requisitionService.sendRequisition(req).subscribe(response => {
-      this.requisitions.push(response as Requisition);
+      this.requisitions.unshift(response as Requisition);
     });
   }
 
@@ -116,5 +113,14 @@ export class RequisitionsComponent implements OnInit {
     this.requisitionService.getPaginatedRequisitions(params).subscribe(response => {
       this.requisitions = response.result;
     })
+  }
+
+  showOldRequestDetails(request: Requisition) {
+    this.req_partAlreadyOrdered = true;
+    this.req_quantityRequired = request.quantity;
+  }
+
+  updateRequest() {
+
   }
 }
