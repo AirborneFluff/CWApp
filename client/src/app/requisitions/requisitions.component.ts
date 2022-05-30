@@ -121,6 +121,20 @@ export class RequisitionsComponent implements OnInit {
   }
 
   updateRequest() {
+    let req: CreateRequisition = {
+      partId: this.req_partId,
+      quantity: this.req_quantityRequired,
+      stockRemaining: this.req_quantityRemaining,
+      forBuffer: this.req_forBuffer,
+      urgent: false,
+      date: undefined
+    };
+
+    this.requisitionService.updateRequisition(req).subscribe(response => {
+      let oldReqIndex = this.requisitions.findIndex(r => r.id == (response as Requisition).id)
+      this.requisitions.splice(oldReqIndex, 1);
+      this.requisitions.unshift(response as Requisition);
+    });
 
   }
 }

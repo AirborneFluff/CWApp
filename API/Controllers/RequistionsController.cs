@@ -64,7 +64,7 @@ namespace API.Controllers
         public async Task<ActionResult> UpdateRequisition([FromBody] NewRequisitionDto reqDto)
         {
             var oldReq = await _unitOfWork.RequisitionsRepository.GetNotOrderedRequisitionForPart(reqDto.PartId);
-            if(oldReq != null) return NotFound("Cannot replace a none existant requisition");
+            if(oldReq == null) return NotFound("Cannot replace a none existant requisition");
             
             // Update urgency
             if (reqDto.Urgent) oldReq.Urgent = true;
@@ -86,6 +86,8 @@ namespace API.Controllers
             // Update quantity
             oldReq.Quantity = reqDto.Quantity;
 
+            // Update date
+            oldReq.Date = DateTime.Now;
 
             if(await _unitOfWork.Complete()) return Ok(_mapper.Map<RequisitionDetailsDto>(oldReq));
             return BadRequest("Issue updating requisition");
