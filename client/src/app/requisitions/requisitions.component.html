@@ -7,8 +7,7 @@
               <div class="col">
                 <input [(ngModel)]="selectedPartCode"
                 [typeahead]="partCodes"
-                (change)="onPartcodeChanged($event)"
-                (ngModelChange)="resetModel()"
+                (ngModelChange)="onPartcodeChanged($event)"
                 class="form-control"
                 [ngClass]="!selectedPart && selectedPartCode ? 'is-invalid' : ''"
                 placeholder="Partcode"
@@ -32,33 +31,73 @@
                 <input class="form-check-input" type="checkbox" id="bufferCheck" name="bufferCheck" [checked]="newRequisition?.forBuffer" disabled>
                 <label class="form-check-label ml-2">For Buffer</label>
             </div>
-            <div class="d-flex">
+
+            
+
+            <div class="d-flex justify-content-left">
                 <!-- Quantity required -->                
                 <div class="quantity-input" [attr.data-placeholder]="selectedPart?.stockUnits">
                     <input type="text"
                         [(ngModel)]="quantityRequired"
                         class="form-control mb-4" placeholder="Quantity required"
-                        name="quantityReq">
+                        name="quantityReq" [disabled]="oldRequisition">
                 </div>
                     
                 <!-- Quantity remaining -->
                 <div class="quantity-input" [attr.data-placeholder]="selectedPart?.stockUnits">
                     <input type="text"
                         [(ngModel)]="quantityRemaining"
-                        class="form-control mb-4" placeholder="Quantity remaining"
-                        name="quantityRem">
+                        class="form-control mb-4" placeholder="Stock remaining"
+                        name="quantityRem" [disabled]="oldRequisition">
                 </div>
             </div>
             
+            <ng-container *ngIf="oldRequisition">
+                <div class="d-flex justify-content-left">
+                    <!-- Quantity required -->                
+                    <div class="quantity-input" [attr.data-placeholder]="selectedPart?.stockUnits">
+                        <input type="text"
+                            [(ngModel)]="additionalRequired"
+                            class="form-control mb-4" placeholder="Additional required"
+                            name="addReq">
+                    </div>
+                        
+                    <!-- Quantity remaining -->
+                    <div class="quantity-input" [attr.data-placeholder]="selectedPart?.stockUnits">
+                        <input type="text"
+                            [(ngModel)]="additionalRemaining"
+                            class="form-control mb-4" placeholder="Stock remaining"
+                            name="addRem">
+                    </div>
+                </div>
+            </ng-container>          
+            
             <!-- For Urgent -->
-            <div class="form-check m-2 mb-4 text-left">
-                <input class="form-check-input" type="checkbox" id="urgentCheck" name="urgentCheck" [(ngModel)]="newRequisition.urgent">
-                <label class="form-check-label ml-2">Urgent</label>
-            </div>
 
+            <label class="form-check-label mb-2" *ngIf="selectedPart?.requisitions?.length > 0">This part has already been requested. Update add to the quntity</label>
             <div class="d-flex justify-content-center bd-highlight mb-3">
-                <button *ngIf="!(selectedPart?.requisitions?.length > 0)" [disabled]="!selectedPart" type="button" class="btn btn-success mx-2" (click)="sendRequest()">Request</button>
-                <button *ngIf="selectedPart?.requisitions?.length > 0" type="button" class="btn btn-info mx-2" (click)="updateRequest()">Update Request</button>
+                <button *ngIf="!(selectedPart?.requisitions?.length > 0)"
+                    [disabled]="!selectedPart || !quantityRequired"
+                    type="button"
+                    class="btn btn-success mx-2"
+                    (click)="sendRequest()">Request
+                </button>
+                <div *ngIf="selectedPart?.requisitions?.length > 0">
+                    <div class="d-flex">
+                        <button type="button" class="btn btn-info mx-2" (click)="updateRequest()">Update Request</button>
+                        
+                        <div class="ml-5">
+                            <input class="form-check-input mt-2 mt-2" type="checkbox"
+                                id="urgentCheck"
+                                name="urgentCheck"
+                                [(ngModel)]="newRequisition.urgent"
+                                [disabled]="oldRequisition?.forBuffer"
+                                [checked]="oldRequisition?.forBuffer">
+                            <label class="form-check-label ml-2 mt-1">Urgent</label>
+                        </div>
+                        
+                    </div>
+                </div>
             </div>
           </form>
     </div>

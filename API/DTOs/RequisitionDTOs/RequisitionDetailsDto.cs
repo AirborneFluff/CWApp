@@ -16,7 +16,9 @@ namespace API.DTOs.RequisitionDTOs
 
     public class Requisition_PartDto
     {
+        public int Id { get; set; }
         public string PartCode { get; set; }
+        public float BufferValue { get; set; }
         public string Description { get; set; }
         public string StockUnits { get; set; }
     }
@@ -32,6 +34,7 @@ namespace API.DTOs.RequisitionDTOs
 
     public class Requisition_UserDto
     {
+        public int Id { get; set; }
         public string Initials { get; set; }
     }
 }

@@ -1,11 +1,12 @@
 using System.Collections.ObjectModel;
 using System.Security.Claims;
+using API.DTOs.RequisitionDTOs;
 using API.Helpers;
 using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class PartsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -227,6 +228,24 @@ namespace API.Controllers
             if (await _unitOfWork.Complete()) return Ok();
 
             return BadRequest("Issue removing price break");
+        }
+
+        [HttpGet("{partCode}/requisitions")]
+        public async Task<ActionResult<IEnumerable<RequisitionDetailsDto>>> GetRequisitionsForPart(string partCode, [FromQuery] bool latest)
+        {
+            var part = await _unitOfWork.PartsRepository.GetPartByPartCode(partCode);
+            if (part == null) NotFound("No part found by that partcode");
+
+            if (latest)
+            {
+                var requistion = await _unitOfWork.RequisitionsRepository.GetOpenRequisitionForPart(part.Id);
+                if (requistion == null) NotFound("No open requisitions for this part");
+                return Ok(_mapper.Map<RequisitionDetailsDto>(requistion));
+            }
+
+            var requisitions = await _unitOfWork.RequisitionsRepository.GetRequisitionsForPart(part.Id);
+            if (requisitions == null) return NotFound("No requisitions exist for this part");
+            return Ok(_mapper.Map<RequisitionDetailsDto>(requisitions));
         }
 
 

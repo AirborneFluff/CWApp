@@ -17,9 +17,11 @@ export class RequisitionsService {
   getPaginatedRequisitions(pageParams: PageParams) {
     let params = getPaginationHeaders(pageParams.pageNumber, pageParams.pageSize);
     
-    return getPaginatedResult<Requisition[]>(this.baseUrl + "requisitions", params, this.http).pipe(map(result => {
-      return result;
-    }))
+    return getPaginatedResult<Requisition[]>(this.baseUrl + "requisitions", params, this.http)
+  }
+
+  getOpenRequisition(partCode: string) {
+    return this.http.get<Requisition>(this.baseUrl + "parts/" + partCode + "/requisitions?latest=true")
   }
 
   sendRequisition(requisition: CreateRequisition) {

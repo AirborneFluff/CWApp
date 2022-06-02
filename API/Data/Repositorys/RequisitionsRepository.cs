@@ -18,7 +18,7 @@ namespace API.Data.Repositorys
             _context.Requisitions.Add(requisition);
         }
 
-        public async Task<Requisition> GetNotOrderedRequisitionForPart(int partId)
+        public async Task<Requisition> GetOpenRequisitionForPart(int partId)
         {
             return await _context.Requisitions
                 .Include(r => r.Part)
@@ -27,12 +27,13 @@ namespace API.Data.Repositorys
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Requisition> GetRequisitionById(int id)
+        public async Task<RequisitionDetailsDto> GetRequisitionById(int id)
         {
             return await _context.Requisitions
                 .Include(r => r.Part)
                 .Include(r => r.User)
                 .Include(r => r.OutboundOrder)
+                .ProjectTo<RequisitionDetailsDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 

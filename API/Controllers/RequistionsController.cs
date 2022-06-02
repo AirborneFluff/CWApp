@@ -26,7 +26,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateRequisiton([FromBody] NewRequisitionDto reqDto)
         {
-            var oldReq = await _unitOfWork.RequisitionsRepository.GetNotOrderedRequisitionForPart(reqDto.PartId);
+            var oldReq = await _unitOfWork.RequisitionsRepository.GetOpenRequisitionForPart(reqDto.PartId);
             if (oldReq != null) return Conflict($"A requistion has already been made for {oldReq.Part?.PartCode}. Try using a PUT request to ammend");
 
             var newReq = _mapper.Map<Requisition>(reqDto);
@@ -61,9 +61,9 @@ namespace API.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateRequisition([FromBody] NewRequisitionDto reqDto)
+        public async Task<ActionResult<RequisitionDetailsDto>> UpdateRequisition([FromBody] NewRequisitionDto reqDto)
         {
-            var oldReq = await _unitOfWork.RequisitionsRepository.GetNotOrderedRequisitionForPart(reqDto.PartId);
+            var oldReq = await _unitOfWork.RequisitionsRepository.GetOpenRequisitionForPart(reqDto.PartId);
             if(oldReq == null) return NotFound("Cannot replace a none existant requisition");
             
             // Update urgency
@@ -77,7 +77,7 @@ namespace API.Controllers
             if (reqDto.StockRemaining != null)
                 _unitOfWork.StockRepository.AddStockEntry(new StockLevelEntry
                 {
-                    PartId = oldReq.PartId,
+                    PartId = oldReq.Part.Id,
                     UserId = user.Id,
                     RemainingStock = (float)reqDto.StockRemaining
                 });
@@ -88,7 +88,9 @@ namespace API.Controllers
             // Update date
             oldReq.Date = DateTime.Now;
 
-            if(await _unitOfWork.Complete()) return Ok(_mapper.Map<RequisitionDetailsDto>(oldReq));
+            var result = _mapper.Map<RequisitionDetailsDto>(oldReq);
+
+            if(await _unitOfWork.Complete()) return Ok(result);
             return BadRequest("Issue updating requisition");
         }
 
@@ -99,15 +101,6 @@ namespace API.Controllers
             if (req == null) return NotFound("Couldn't find a requisition by that Id");
 
             return Ok(req);
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Requisition>>> GetRequisitionsForPart([FromQuery] string partCode, bool ordered)
-        {
-            var requistions = await _unitOfWork.RequisitionsRepository.GetRequisitions(pageParams);
-            Response.AddPaginationHeader(requistions.CurrentPage, requistions.PageSize, requistions.TotalCount, requistions.TotalPages);
-
-            return Ok(requistions);
         }
     }
 }

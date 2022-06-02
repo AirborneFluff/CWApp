@@ -8,9 +8,21 @@ namespace API.Entities
         public int UserId { get; set; }
         public AppUser User { get; set; }
 
-        public float RemainingStock { get; set; }
+        public float RemainingStock {
+            get
+            {
+                return _remainingStock;
+            }
+            set
+            {
+                if (value < 0) _remainingStock = 0;
+                else _remainingStock = value;
+            }
+        }
         public string StockUnits { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
 
-    }
+    private float _remainingStock;
+
+}
 }

@@ -24,6 +24,8 @@ import { NewBomEntryComponent } from './products/bom-details/new-bom-entry/new-b
 import { RequisitionsComponent } from './requisitions/requisitions.component';
 import { LoginModalComponent } from './modals/login-modal/login-modal.component';
 import { JwtInterceptor } from './_interceptors/jwt.interceptor';
+import { ToastrModule } from 'ngx-toastr';
+import { ResponseCatchInterceptor } from './_interceptors/response-catch.interceptor';
 
 @NgModule({
   declarations: [
@@ -52,11 +54,21 @@ import { JwtInterceptor } from './_interceptors/jwt.interceptor';
     BsDropdownModule.forRoot(),
     TypeaheadModule.forRoot(),
     ModalModule.forRoot(),
+    ToastrModule.forRoot({
+      timeOut: 4000,
+      positionClass: 'toast-bottom-right',
+      preventDuplicates: true,
+    })
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ResponseCatchInterceptor,
       multi: true
     }
   ],

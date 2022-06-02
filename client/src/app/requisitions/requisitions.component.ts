@@ -1,4 +1,5 @@
 import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { PageParams } from '../_models/pageParams';
 import { Part } from '../_models/part';
 import { CreateRequisition, Requisition } from '../_models/requisiton';
@@ -15,12 +16,18 @@ export class RequisitionsComponent implements OnInit {
   partCodes: string[] = [];
   requisitions: Requisition[] = [];
   newRequisition: CreateRequisition = new CreateRequisition();
+  oldRequisition: Requisition;
   selectedPart: Part;
   selectedPartCode: string;
   selectedDescription: string;
   defaultStockUnits = "pcs";
+  _additionalRequired: number;
+  _additionalRemaining: number;
+  _oldReqRequired: number;
+  _oldReqRemaining: number;
 
-  constructor(private partService: PartsService, private requisitionService: RequisitionsService, private accountService: AccountService) { }
+  constructor(private partService: PartsService, private requisitionService: RequisitionsService, private accountService: AccountService
+    , private toastr: ToastrService) { }
 
   ngOnInit(): void {
     this.partService.getAllPartcodes().subscribe(() => {
@@ -32,7 +39,6 @@ export class RequisitionsComponent implements OnInit {
   onPartcodeChanged($event) {
     if (this.partCodes.includes(this.selectedPartCode)) {
       this.partService.getPart(this.selectedPartCode).subscribe(x => {
-        console.log(x)
         if (x.stockUnits === "") x.stockUnits = this.defaultStockUnits
         this.selectedPart = x;
 
@@ -42,7 +48,15 @@ export class RequisitionsComponent implements OnInit {
         if (x.bufferValue > 0) this.newRequisition.forBuffer = true;
         else this.newRequisition.forBuffer = false;
 
-        if (x.requisitions?.length > 0) this.showOldRequestDetails(x.requisitions[0])
+        if (x.requisitions?.length > 0) {
+          this.requisitionService.getOpenRequisition(x.partCode).subscribe(req => {
+            this.oldRequisition = req;
+            this.quantityRequired = req.quantity
+            this._additionalRequired = undefined;
+            this._oldReqRequired = req.quantity
+          })
+        }
+
       })
     } else this.resetModel()
   }
@@ -53,6 +67,8 @@ export class RequisitionsComponent implements OnInit {
       this.requisitions.unshift(response as Requisition);
       this.selectedPartCode = undefined;
       this.resetModel()
+    }, error => {
+      this.toastr.error("Problem sending request")
     });
   }
 
@@ -66,6 +82,16 @@ export class RequisitionsComponent implements OnInit {
   }
 
   showOldRequestDetails(request: Requisition) {
+    this.oldRequisition = request;
+    this.newRequisition.urgent = request.urgent;
+    this._oldReqRequired = request.quantity;
+
+    if (request.forBuffer) {
+      this._oldReqRemaining = this.selectedPart.bufferValue - request.quantity
+    }
+
+    this.quantityRequired = request.quantity;
+    console.log(this.quantityRequired)
   }
 
   updateRequest() {
@@ -81,6 +107,7 @@ export class RequisitionsComponent implements OnInit {
   resetModel() {
     this.selectedPart = undefined;
     this.selectedDescription = undefined;
+    this.oldRequisition = undefined;
     this.newRequisition = new CreateRequisition();
   }
 
@@ -105,5 +132,31 @@ export class RequisitionsComponent implements OnInit {
   }
   public get quantityRequired() {
     return this.newRequisition.quantity
+  }
+
+
+  public set additionalRemaining(value: number) {
+    this.quantityRemaining = Number(value)
+    this._additionalRemaining = Number(value)
+
+    if (this.newRequisition.forBuffer) {
+      this._additionalRequired = this._oldReqRemaining - (this._additionalRemaining || 0)
+    }
+  }
+
+  public set additionalRequired(value: number) {
+    this._additionalRequired = Number(value)
+    this.quantityRequired = Number(value) + this._oldReqRequired
+
+    if (this.newRequisition.forBuffer) {
+      this._additionalRemaining = this.newRequisition.stockRemaining
+    }
+  }
+
+  public get additionalRemaining() {
+    return this._additionalRemaining
+  }
+  public get additionalRequired() {
+    return this._additionalRequired
   }
 }
