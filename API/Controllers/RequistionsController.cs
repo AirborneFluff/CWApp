@@ -68,7 +68,6 @@ namespace API.Controllers
             
             // Update urgency
             if (reqDto.Urgent) oldReq.Urgent = true;
-            oldReq.Quantity = reqDto.Quantity;
 
             // Update user
             var user = await _unitOfWork.UsersRepository.GetUserById(User.GetUserId());
@@ -100,6 +99,15 @@ namespace API.Controllers
             if (req == null) return NotFound("Couldn't find a requisition by that Id");
 
             return Ok(req);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Requisition>>> GetRequisitionsForPart([FromQuery] string partCode, bool ordered)
+        {
+            var requistions = await _unitOfWork.RequisitionsRepository.GetRequisitions(pageParams);
+            Response.AddPaginationHeader(requistions.CurrentPage, requistions.PageSize, requistions.TotalCount, requistions.TotalPages);
+
+            return Ok(requistions);
         }
     }
 }

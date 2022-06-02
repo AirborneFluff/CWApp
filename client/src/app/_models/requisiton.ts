@@ -1,5 +1,6 @@
 export interface Requisition {
     id: number;
+    forBuffer: boolean;
     part: PartialPart;
     user: PartialUser;
     outboundOrder: PartialOutboundOrder;
@@ -8,13 +9,13 @@ export interface Requisition {
     date: string;
 }
 
-export interface CreateRequisition {
-    partId: number;
-    quantity: number;
-    stockRemaining: number;
-    forBuffer: boolean;
-    urgent: boolean;
-    date: string;
+export class CreateRequisition {
+    partId: number = null;
+    quantity: number = null;
+    stockRemaining: number = null;
+    forBuffer: boolean = false;
+    urgent: boolean = false;
+    date: string = undefined;
 }
 
 interface PartialPart {

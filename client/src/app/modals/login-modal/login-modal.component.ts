@@ -22,6 +22,8 @@ export class LoginModalComponent implements OnInit {
   login(user: User) {
     this.accountService.login(user.username, "0314").subscribe(() => {
       this.modalService.hide();
+    }, error => {
+      
     });
   }
 }

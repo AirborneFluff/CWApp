@@ -14,43 +14,11 @@ import { RequisitionsService } from '../_services/requisitions.service';
 export class RequisitionsComponent implements OnInit {
   partCodes: string[] = [];
   requisitions: Requisition[] = [];
+  newRequisition: CreateRequisition = new CreateRequisition();
+  selectedPart: Part;
+  selectedPartCode: string;
+  selectedDescription: string;
   defaultStockUnits = "pcs";
-
-  req_partcode: string = "";
-  req_partId: number;
-  req_partDescription = "";
-  req_partStockUnits = this.defaultStockUnits;
-  req_partBufferValue: number;
-  req_partCodeValid: boolean = true;
-  req_partAlreadyOrdered: boolean = false;
-
-  req_forBuffer: boolean = false;
-  private _quantRem: number;
-  private _quantReq: number;
-
-
-  public set req_quantityRemaining(value: number) {
-    this._quantRem = value
-
-    if (this.req_forBuffer) {
-      this._quantReq = this.req_partBufferValue - this._quantRem;
-    }
-  }
-
-  public set req_quantityRequired(value: number) {
-    this._quantReq = value
-
-    if (this.req_forBuffer) {
-      this._quantRem = this.req_partBufferValue - this._quantReq;
-    }
-  }
-
-  public get req_quantityRemaining() {
-    return this._quantRem
-  }
-  public get req_quantityRequired() {
-    return this._quantReq
-  }
 
   constructor(private partService: PartsService, private requisitionService: RequisitionsService, private accountService: AccountService) { }
 
@@ -62,47 +30,29 @@ export class RequisitionsComponent implements OnInit {
   }
 
   onPartcodeChanged($event) {
-    if ($event.constructor.name === "TypeaheadMatch") {
-      this.req_partCodeValid = true;
-      this.partService.getPart(this.req_partcode).subscribe(x => {
-        this.req_partDescription = x.description;
-        this.req_partBufferValue = x.bufferValue;
-        this.req_partId = x.id;
+    if (this.partCodes.includes(this.selectedPartCode)) {
+      this.partService.getPart(this.selectedPartCode).subscribe(x => {
+        console.log(x)
+        if (x.stockUnits === "") x.stockUnits = this.defaultStockUnits
+        this.selectedPart = x;
 
-        this._quantRem = undefined;
-        this._quantReq = undefined;
+        this.newRequisition = new CreateRequisition();
+        this.newRequisition.partId = x.id;
 
-        if (x.stockUnits === "") this.req_partStockUnits = this.defaultStockUnits
-        else this.req_partStockUnits = x.stockUnits
-
-        if (x.bufferValue > 0) this.req_forBuffer = true;
-        else this.req_forBuffer = false;
+        if (x.bufferValue > 0) this.newRequisition.forBuffer = true;
+        else this.newRequisition.forBuffer = false;
 
         if (x.requisitions?.length > 0) this.showOldRequestDetails(x.requisitions[0])
-        else this.req_partAlreadyOrdered = false;
       })
-    } else {
-      if (!this.partCodes.find(x => x == this.req_partcode)) {
-        this.req_partCodeValid = false;
-        this.req_partAlreadyOrdered = false;
-      } else this.req_partCodeValid = true;
-    }
+    } else this.resetModel()
   }
 
-  sendRequest(urgent: boolean) {
-    let req: CreateRequisition = {
-      partId: this.req_partId,
-      quantity: this.req_quantityRequired,
-      stockRemaining: this.req_quantityRemaining,
-      forBuffer: this.req_forBuffer,
-      urgent: false,
-      date: undefined
-    };
-
-    if (urgent) req.urgent = true;
-
-    this.requisitionService.sendRequisition(req).subscribe(response => {
+  sendRequest() {
+    console.log(this.newRequisition);
+    this.requisitionService.sendRequisition(this.newRequisition).subscribe(response => {
       this.requisitions.unshift(response as Requisition);
+      this.selectedPartCode = undefined;
+      this.resetModel()
     });
   }
 
@@ -116,25 +66,44 @@ export class RequisitionsComponent implements OnInit {
   }
 
   showOldRequestDetails(request: Requisition) {
-    this.req_partAlreadyOrdered = true;
-    this.req_quantityRequired = request.quantity;
   }
 
   updateRequest() {
-    let req: CreateRequisition = {
-      partId: this.req_partId,
-      quantity: this.req_quantityRequired,
-      stockRemaining: this.req_quantityRemaining,
-      forBuffer: this.req_forBuffer,
-      urgent: false,
-      date: undefined
-    };
-
-    this.requisitionService.updateRequisition(req).subscribe(response => {
+    this.requisitionService.updateRequisition(this.newRequisition).subscribe(response => {
       let oldReqIndex = this.requisitions.findIndex(r => r.id == (response as Requisition).id)
       this.requisitions.splice(oldReqIndex, 1);
       this.requisitions.unshift(response as Requisition);
+      this.selectedPartCode = undefined;
+      this.resetModel()
     });
+  }
 
+  resetModel() {
+    this.selectedPart = undefined;
+    this.selectedDescription = undefined;
+    this.newRequisition = new CreateRequisition();
+  }
+
+  public set quantityRemaining(value: number) {
+    this.newRequisition.stockRemaining = Number(value)
+
+    if (this.newRequisition.forBuffer) {
+      this.newRequisition.quantity = this.selectedPart.bufferValue - this.newRequisition.stockRemaining;
+    }
+  }
+
+  public set quantityRequired(value: number) {
+    this.newRequisition.quantity = Number(value)
+
+    if (this.newRequisition.forBuffer) {
+      this.newRequisition.stockRemaining = this.selectedPart.bufferValue - this.newRequisition.quantity;
+    }
+  }
+
+  public get quantityRemaining() {
+    return this.newRequisition.stockRemaining
+  }
+  public get quantityRequired() {
+    return this.newRequisition.quantity
   }
 }
