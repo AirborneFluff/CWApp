@@ -22,6 +22,8 @@ namespace API.Data
         public IUsersRepository UsersRepository => new UsersRepository(_context);
         public IStockLevelsRepository StockRepository => new StockRepository(_context);
 
+        public IOutboundOrdersRepository OutboundOrdersRepository => new OutboundOrdersRepository(_context);
+
         public async Task<bool> Complete()
         {
             try { return await _context.SaveChangesAsync() > 0; }

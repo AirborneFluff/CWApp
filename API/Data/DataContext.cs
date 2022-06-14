@@ -20,6 +20,7 @@ namespace API.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Requisition> Requisitions { get; set; }
         public DbSet<StockLevelEntry> StockLevelEntries { get; set; }
+        public DbSet<OutboundOrder> OutboundOrders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

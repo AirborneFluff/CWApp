@@ -11,6 +11,7 @@ namespace API.Interfaces
         IRequisitionsRepository RequisitionsRepository { get; }
         IUsersRepository UsersRepository { get; }
         IStockLevelsRepository StockRepository { get; }
+        IOutboundOrdersRepository OutboundOrdersRepository { get; }
         Task<bool> Complete();
         bool HasChanges();
     }

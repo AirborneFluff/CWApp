@@ -1,4 +1,5 @@
 using System.Runtime.Intrinsics.X86;
+using API.DTOs.OutboundOrderDTOs;
 using API.DTOs.RequisitionDTOs;
 using API.DTOs.UserDTOs;
 
@@ -25,6 +26,10 @@ namespace API.Helpers
             CreateMap<AppUser, NewUserDto>();
             CreateMap<AppUser, UserDto>()
                 .ForMember(u => u.UserId, e => e.MapFrom(u => u.Id));
+
+
+            // OutboundOrders
+            CreateMap<NewOutboundOrderDTO, OutboundOrder>();
         }
     }
 }
